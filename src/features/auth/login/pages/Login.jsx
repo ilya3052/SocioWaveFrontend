@@ -24,8 +24,8 @@ const LoginForm = () => {
     const [showPassword, setShowPassword] = useState(false);
 
     useEffect(() => {
-        return initializeTelegramWidget(createTGAuthHandler(navigate));
-    }, [navigate]);
+        return initializeTelegramWidget(createTGAuthHandler(navigate, refetchUser));
+    }, [navigate, refetchUser]);
 
     useEffect(() => {
         return initializeVKID(createVKAuthSuccessHandler(navigate, refetchUser), 'primary');

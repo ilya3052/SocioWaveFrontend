@@ -13,6 +13,8 @@ import AdminPage from "./features/admin/pages/AdminPage.jsx";
 import {useUser} from "./context/UserContext.jsx";
 import AddAccountPage from "./features/serviceAccounts/pages/AddAccount/addAccount.jsx";
 import ServiceAccounts from "./features/serviceAccounts/pages/ServiceAccounts/ServiceAccounts.jsx";
+import SummaryInfo from "./features/groups/pages/summaryInfo/summary.jsx";
+import DetailInfo from "./features/groups/pages/detailInfo/detailInfo.jsx";
 
 // --- Guards ---
 
@@ -34,7 +36,7 @@ const AdminRoute = () => {
     const {user} = useUser();
 
     if (!user?.is_staff) {
-        return <Navigate to="/profile" replace/>;
+        return <Navigate to="/groups" replace/>;
     }
 
     return <Outlet/>;
@@ -44,7 +46,7 @@ const UserRoute = () => {
     const {user} = useUser();
 
     if (user?.is_staff) {
-        return <Navigate to="/admin" replace/>;
+        return <Navigate to="/admin_panel" replace/>;
     }
 
     return <Outlet/>;
@@ -59,7 +61,7 @@ const RoleRedirect = () => {
 
     return user?.is_staff
         ? <Navigate to="/admin_panel" replace/>
-        : <Navigate to="/profile" replace/>;
+        : <Navigate to="/groups" replace/>;
 };
 
 const App = () => {
@@ -88,6 +90,8 @@ const App = () => {
 
                         {/* USER ONLY */}
                         <Route element={<UserRoute/>}>
+                            <Route path="/groups" element={<SummaryInfo/>}/>
+                            <Route path="/groups/:slug" element={<DetailInfo/>}/>
                             <Route path="/profile" element={<ProfileSection/>}/>
                             <Route path="/profile/groups/add" element={<AddGroup/>}/>
                         </Route>

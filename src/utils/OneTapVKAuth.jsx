@@ -134,7 +134,7 @@ export const createVKAuthSuccessHandler = (navigate, refetchUser) => {
         if (typeof refetchUser === 'function') {
             await refetchUser();
         }
-        navigate('/profile');
+        navigate('/');
     };
 };
 

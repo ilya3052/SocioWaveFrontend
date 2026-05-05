@@ -1,0 +1,230 @@
+/* GroupInfoPage.module.css */
+.groupInfoContainer {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 2rem;
+}
+
+/* Заголовок группы */
+.groupHeader {
+    background: white;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.groupLogo {
+    width: 80px;
+    height: 80px;
+    background: #e9ecef;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    font-weight: bold;
+}
+
+.groupNamePlatform {
+    flex: 1;
+}
+
+.groupName {
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
+}
+
+.groupPlatform {
+    background: #2c5aa0;
+    color: white;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: bold;
+}
+
+.groupActions {
+    display: flex;
+    gap: 1rem;
+}
+
+.actionBtn {
+    padding: 0.7rem 1.2rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background: white;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s;
+}
+
+.actionBtn:hover {
+    background: #f8f9fa;
+}
+
+.actionBtn.delete {
+    color: #dc3545;
+    border-color: #dc3545;
+}
+
+.actionBtn.delete:hover {
+    background: #dc3545;
+    color: white;
+}
+
+/* Общая информация */
+.groupGeneralInfo {
+    background: white;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    margin-bottom: 2rem;
+}
+
+.groupGeneralInfo h2 {
+    margin-bottom: 1.5rem;
+    color: #333;
+}
+
+.groupDescription {
+    margin-bottom: 1rem;
+    color: #666;
+}
+
+.groupJoined,
+.serviceAccount {
+    color: #666;
+    margin-bottom: 0.5rem;
+}
+
+.serviceAccountLink {
+    color: #2c5aa0;
+    text-decoration: none;
+}
+
+.serviceAccountLink:hover {
+    text-decoration: underline;
+}
+
+/* Статистика */
+.groupStats {
+    background: white;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    margin-bottom: 2rem;
+}
+
+.groupStats h2 {
+    margin-bottom: 1.5rem;
+    color: #333;
+}
+
+.statsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+}
+
+.statCard {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.statValue {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #2c5aa0;
+    margin-bottom: 0.5rem;
+}
+
+.statLabel {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.updateBtnContainer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1.5rem;
+}
+
+.updateBtnContainer .actionBtn {
+    padding: 0.8rem 1.5rem;
+    background: #2c5aa0;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.updateBtnContainer .actionBtn:hover {
+    background: #1e3d6f;
+}
+
+/* Графики */
+.groupCharts {
+    background: white;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    margin-bottom: 2rem;
+}
+
+.groupCharts h2 {
+    margin-bottom: 1.5rem;
+    color: #333;
+}
+
+.chartsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 2rem;
+}
+
+.chartCard {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 8px;
+}
+
+.chartCard h3 {
+    margin-bottom: 1rem;
+    color: #333;
+    font-size: 1.1rem;
+}
+
+.chartCard canvas {
+    width: 100%;
+    height: 200px;
+}
+
+/* Кнопка сохранения */
+.saveBtnContainer {
+    text-align: center;
+    margin: 2rem 0;
+}
+
+.saveBtn {
+    padding: 1rem 2rem;
+    background: #2c5aa0;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.saveBtn:hover {
+    background: #1e3d6f;
+}

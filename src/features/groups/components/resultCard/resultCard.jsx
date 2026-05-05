@@ -1,9 +1,9 @@
 // components/ResultCard.jsx
 import React from 'react';
 import styles from './ResultCard.module.css';
+import {Link} from "react-router-dom";
 
 const ResultCard = ({
-                        id,
                         platform,
                         title,
                         stats,
@@ -42,8 +42,8 @@ const ResultCard = ({
                 <span className={styles.statsUpdated}>обновлено {time}</span>
             </div>
             <div className={styles.cardActions}>
-                <a href={`https://socialpulse.sandbox.com/groups/${detailsLink}?id=${id}`}
-                   className={styles.detailsLink}>Подробнее</a>
+                <Link to={`https://socialpulse.sandbox.com/groups/${detailsLink}`}
+                   className={styles.detailsLink}>Подробнее</Link>
             </div>
         </div>
     );

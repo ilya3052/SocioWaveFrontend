@@ -71,7 +71,6 @@ const SummaryInfo = () => {
 
                 <div className={styles.resultsGrid}>
                     {groupsData.map((group) => {
-                        console.log(group);
                         return <ResultCard
                             key={group.id}
                             id={group.id}
@@ -81,27 +80,6 @@ const SummaryInfo = () => {
                             stats={group.abs_stats}
                         />
                     })}
-                    {/*<ResultCard*/}
-                    {/*    platform="TG"*/}
-                    {/*    title="IT Новости"*/}
-                    {/*    stats="очень полезный текст с информацией о группе"*/}
-                    {/*    detailsLink="group.html"*/}
-                    {/*/>*/}
-                    {/*<ResultCard*/}
-                    {/*    platform="VK"*/}
-                    {/*    title="Маркетинг Pro"*/}
-                    {/*    stats="очень полезный текст с информацией о группе"*/}
-                    {/*/>*/}
-                    {/*<ResultCard*/}
-                    {/*    platform="TG"*/}
-                    {/*    title="Дизайн и Креатив"*/}
-                    {/*    stats="очень полезный текст с информацией о группе"*/}
-                    {/*/>*/}
-                    {/*<ResultCard*/}
-                    {/*    platform="TG"*/}
-                    {/*    title="Дизайн и Креатив"*/}
-                    {/*    stats="очень полезный текст с информацией о группе"*/}
-                    {/*/>*/}
                 </div>
             </section>
         </div>
