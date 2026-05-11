@@ -1,0 +1,99 @@
+.groupTopPosts {
+    background: white;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    margin-bottom: 2rem;
+}
+
+.groupTopPosts h2 {
+    margin-bottom: 1.5rem;
+    color: #333;
+}
+
+.topPostsGrid {
+    display: grid;
+    grid-template-columns: repeat(2, auto);
+    gap: 1.5rem;
+    justify-content: center;
+    align-items: stretch;
+
+}
+
+.topPostCard {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 0.5rem;
+    max-width: 450px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.topPostLabel {
+    font-weight: 600;
+    color: #495057;
+    font-size: 0.85rem;
+    text-align: center;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.postText {
+    color: #212529;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    word-break: break-word;
+    overflow-wrap: break-word;
+}
+
+.expandBtn {
+    background: none;
+    border: none;
+    color: #2c5aa0;
+    cursor: pointer;
+    font-size: 0.85rem;
+    padding: 0;
+    margin-left: 0.25rem;
+    text-decoration: underline;
+    transition: color 0.2s;
+}
+
+.expandBtn:hover {
+    color: #1e3d6f;
+}
+
+.postLink {
+    color: #2c5aa0;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.postLink:hover {
+    text-decoration: underline;
+}
+
+.postMetrics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    font-size: 0.75rem;
+    color: #6c757d;
+}
+
+.metricSeparator {
+    color: #adb5bd;
+    margin: 0 0.25rem;
+}
+
+.updatedInfo {
+    text-align: right;
+    color: #adb5bd;
+    font-size: 0.85rem;
+    margin-top: 1rem;
+    margin-bottom: 0;
+}
