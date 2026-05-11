@@ -8,9 +8,11 @@ export const useUser = () => useContext(UserContext);
 export const UserProvider = ({children}) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
-
+    const [isRefreshing, setIsRefreshing] = useState(false);
 
     const fetchUser = async () => {
+        if (isRefreshing) return;
+
         setLoading(true);
         const getUserData = async (token) => {
             return await fetch(`${BASE_URL}/${API_VERSION}/users/me/`, {
@@ -32,7 +34,14 @@ export const UserProvider = ({children}) => {
             let res = await getUserData(token);
 
             if (res.status === 401) {
-                if (!(await verifyAndRefreshToken())) {
+                if (isRefreshing) {
+                    return;
+                }
+                setIsRefreshing(true);
+                const refreshed = await verifyAndRefreshToken();
+                setIsRefreshing(false);
+
+                if (!refreshed) {
                     setUser(null);
                     setLoading(false);
                     return;

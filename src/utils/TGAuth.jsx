@@ -19,7 +19,9 @@ export const handleTelegramAuth = async (user, navigate, refetchUser) => {
         console.log(data);
         localStorage.setItem('access_token', data.access);
         localStorage.setItem('refresh_token', data.refresh);
+        console.log(typeof refetchUser);
         if (typeof refetchUser === 'function') {
+            console.log('function')
             await refetchUser();
         }
         navigate('/profile');

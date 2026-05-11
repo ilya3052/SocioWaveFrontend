@@ -1,0 +1,94 @@
+.siteContainer {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.searchSection {
+    background: #fff;
+    padding: 1.5rem 2rem;
+    margin: 1rem auto;
+    max-width: 1600px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.searchCompactRow {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-end;
+    flex-wrap: wrap;
+}
+
+.searchInput {
+    flex: 1;
+    min-width: 250px;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 0.9rem;
+}
+
+.searchInput:focus {
+    outline: none;
+    border-color: #2c5aa0;
+}
+
+.searchBtn {
+    padding: 0.6rem 1.5rem;
+    background: #2c5aa0;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 0.9rem;
+    transition: background 0.3s;
+}
+
+.searchBtn:hover {
+    background: #1e3d6f;
+}
+
+.resultsSection {
+    max-width: 1600px;
+    margin: 0 auto 2rem;
+    padding: 0 2rem;
+    flex: 1;
+}
+
+.resultsHeader {
+    margin-bottom: 1.5rem;
+}
+
+.resultsCount {
+    color: #666;
+    font-size: 1.1rem;
+}
+
+.resultsGrid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+    max-width: 100%;
+}
+
+.scrollToTop {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    background: #2c5aa0;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    transition: background 0.3s;
+}
+
+.scrollToTop:hover {
+    background: #1e3d6f;
+}

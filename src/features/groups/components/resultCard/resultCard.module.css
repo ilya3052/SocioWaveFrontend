@@ -1,0 +1,108 @@
+/* components/ResultCard.module.css */
+
+.resultCard {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+    transition: transform 0.3s, box-shadow 0.3s;
+    min-height: 220px;
+    min-width: 400px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.resultCard:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.cardHeader {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin-bottom: 1rem;
+}
+
+.platformBadge {
+    padding: 0.2rem 0.6rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: white;
+}
+
+.platformTg {
+    background: #2c5aa0;
+}
+
+.platformVk {
+    background: #4c75a3;
+}
+
+.cardTitle {
+    font-weight: bold;
+    flex: 1;
+}
+
+.compareToggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    margin-left: auto;
+}
+
+.compareCheckbox {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+.compareLabel {
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.cardStats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem 1.5rem;
+    color: #555;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.cardStats span {
+    display: flex;
+    align-items: center;
+}
+
+.cardMeta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.statsUpdated {
+    color: #888;
+    font-size: 0.8rem;
+}
+
+.cardActions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.detailsLink {
+    color: #2c5aa0;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.detailsLink:hover {
+    text-decoration: underline;
+}

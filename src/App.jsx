@@ -13,11 +13,21 @@ import AdminPage from "./features/admin/pages/AdminPage.jsx";
 import {useUser} from "./context/UserContext.jsx";
 import AddAccountPage from "./features/serviceAccounts/pages/AddAccount/addAccount.jsx";
 import ServiceAccounts from "./features/serviceAccounts/pages/ServiceAccounts/ServiceAccounts.jsx";
+import SummaryInfo from "./features/groups/pages/summaryInfo/summary.jsx";
+import DetailInfo from "./features/groups/pages/detailInfo/detailInfo.jsx";
+
+import {useMemo} from "react";
+
+// --- Auth hook ---
+const useAuthData = () => {
+    const {user, loading} = useUser();
+    return useMemo(() => ({user, loading, isStaff: user?.is_staff || false}), [user, loading]);
+};
 
 // --- Guards ---
 
 const ProtectedLayout = () => {
-    const {user, loading} = useUser();
+    const {user, loading} = useAuthData();
 
     if (loading) {
         return <div>Loading...</div>;
@@ -31,40 +41,40 @@ const ProtectedLayout = () => {
 };
 
 const AdminRoute = () => {
-    const {user} = useUser();
+    const {user, isStaff} = useAuthData();
 
-    if (!user?.is_staff) {
-        return <Navigate to="/profile" replace/>;
+    if (!isStaff) {
+        return <Navigate to="/groups" replace/>;
     }
 
     return <Outlet/>;
 };
 
 const UserRoute = () => {
-    const {user} = useUser();
+    const {isStaff} = useAuthData();
 
-    if (user?.is_staff) {
-        return <Navigate to="/admin" replace/>;
+    if (isStaff) {
+        return <Navigate to="/admin_panel" replace/>;
     }
 
     return <Outlet/>;
 };
 
 const RoleRedirect = () => {
-    const {user, loading} = useUser();
+    const {user, loading, isStaff} = useAuthData();
 
     if (loading) {
         return <div>Loading...</div>;
     }
 
-    return user?.is_staff
+    return isStaff
         ? <Navigate to="/admin_panel" replace/>
-        : <Navigate to="/profile" replace/>;
+        : <Navigate to="/groups" replace/>;
 };
 
 const App = () => {
     const location = useLocation();
-    const {user, loading} = useUser();
+    const {user, loading, isStaff} = useAuthData();
 
     const isAuthPage =
         location.pathname === "/login" ||
@@ -72,7 +82,7 @@ const App = () => {
 
     return (
         <div className="app">
-            {!isAuthPage && !loading && (user?.is_staff ? <HeaderAdmin/> : <Header/>)}
+            {!isAuthPage && !loading && (isStaff ? <HeaderAdmin/> : <Header/>)}
 
             <main className="main">
                 <Routes>
@@ -88,6 +98,8 @@ const App = () => {
 
                         {/* USER ONLY */}
                         <Route element={<UserRoute/>}>
+                            <Route path="/groups" element={<SummaryInfo/>}/>
+                            <Route path="/groups/:slug" element={<DetailInfo/>}/>
                             <Route path="/profile" element={<ProfileSection/>}/>
                             <Route path="/profile/groups/add" element={<AddGroup/>}/>
                         </Route>
