@@ -48,73 +48,75 @@ const PersonalTab = () => {
     const [isEmailConfirmed, setIsEmailConfirmed] = useState(false);
 
     const navigate = useNavigate();
-    const {refetchUser} = useUser();
+    const {user, refetchUser, loading: userLoading} = useUser();
 
     useEffect(() => {
         return initializeVKID(createVKAuthBindingHandler(navigate, refetchUser), 'secondary');
     }, [navigate, refetchUser]);
 
-    const getUserData = async (token) => {
-        return await fetch(`${BASE_URL}/${API_VERSION}/users/me/`, {
-            method: "GET",
-            headers: {
-                "Authorization": `Bearer ${token}`,
-                "Content-Type": "application/json",
-            },
+    useEffect(() => {
+        if (userLoading) return;
+
+        if (!user) {
+            navigate("/login");
+            return;
+        }
+
+        setPersonalData({
+            first_name: user.first_name || "",
+            last_name: user.last_name || "",
+            username: user.username || "",
+            email: user.email || "",
+            tg_id: user.tg_id || "",
+            tg_link: user.tg_link || "",
+            vk_id: user.vk_id || "",
+            vk_link: user.vk_link || ""
         });
-    }
+
+        if (user.vk_id) {
+            localStorage.setItem('vk_id', user.vk_id);
+        }
+        if (user.tg_id) {
+            localStorage.setItem('tg_id', user.tg_id);
+        }
+        setIsEmailConfirmed(user.is_email_confirmed || false);
+
+    }, [user, userLoading, navigate]);
 
     useEffect(() => {
-        const fetchUserData = async () => {
-            let token = localStorage.getItem("access_token");
-            if (!token) {
-                if (!(await verifyAndRefreshToken())) {
-                    navigate("/login");
-                    return;
-                }
-                return;
-            }
+        if (userLoading) return;
+        if (!user) return;
 
+        const fetchPasswordStatus = async () => {
             try {
-                const response = await getUserData(token);
+                const token = localStorage.getItem("access_token");
+                if (!token) return;
+
+                const response = await fetch(`${BASE_URL}/${API_VERSION}/users/me/`, {
+                    method: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                });
 
                 if (response.ok) {
                     const data = await response.json();
-                    console.log(data);
-                    setPersonalData(data.data);
-                    if (data.data.vk_id) {
-                        localStorage.setItem('vk_id', data.data.vk_id);
-                        localStorage.setItem('vk_access_token', data.tokens.access_vk_token)
-                        localStorage.setItem('vk_refresh_token', data.tokens.refresh_vk_token)
-                        localStorage.setItem('vk_id_token', data.tokens.id_vk_token)
-                    }
-                    if (data.data.tg_id) {
-                        localStorage.setItem('tg_id', data.data.tg_id);
-                    }
-                    setIsEmailConfirmed(data.data.is_email_confirmed)
-
                     setHasPassword(data.has_password);
-                } else if (response.status === 400) {
-                    alert(await response.text());
-                } else if (response.status === 401) {
-                    if (!(await verifyAndRefreshToken())) {
-                        navigate("/login");
-                        return;
+
+                    if (data.tokens?.access_vk_token) {
+                        localStorage.setItem('vk_access_token', data.tokens.access_vk_token);
+                        localStorage.setItem('vk_refresh_token', data.tokens.refresh_vk_token);
+                        localStorage.setItem('vk_id_token', data.tokens.id_vk_token);
                     }
-                    token = localStorage.getItem("access_token");
-                    const retryRes = await getUserData(token);
-                    setPersonalData(await retryRes.json());
-                } else {
-                    console.warn("Не удалось загрузить профиль", response.status);
-                    // можно показать уведомление, но не обязательно ломать регистрацию
                 }
             } catch (err) {
-                console.error("Ошибка при загрузке пользовательских данных:", err);
+                console.error("Failed to fetch password status:", err);
             }
         };
 
-        fetchUserData();
-    }, [navigate]);
+        fetchPasswordStatus();
+    }, [user, userLoading]);
 
     const handleChange = (e) => {
         const {name, value} = e.target;
@@ -170,6 +172,7 @@ const PersonalTab = () => {
                 case 200:
                     setPersonalData(editData);
                     setIsEditing(false);
+                    window.location.reload();
                     break;
                 case 400:
                     alert((await res.text()));
