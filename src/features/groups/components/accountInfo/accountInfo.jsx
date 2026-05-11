@@ -80,6 +80,9 @@ const AccountInfo = ({
                 });
             } else if (res.status === 400) {
                 const data = await res.json();
+                if (data.msg.includes('target user is not a member')) {
+                    alert('Добавьте сервисный аккаунт в группу и назначьте ему минимальные права администратора!')
+                }
                 setGroupData({msg: data['msg'], access: data['status']})
             } else if (res.status === 406 || res.status === 404) {
                 const data = await res.json();
