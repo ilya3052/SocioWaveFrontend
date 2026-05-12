@@ -17,21 +17,6 @@
     font-weight: 500;
 }
 
-.platformSelect,
-.sortSelect {
-    padding: 0.6rem 2rem 0.6rem 0.8rem;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    background: white;
-    min-width: 140px;
-    font-size: 0.9rem;
-    cursor: pointer;
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 0.6rem center;
-}
-
 .dropdownWrapper {
     position: relative;
     display: inline-block;
@@ -46,6 +31,25 @@
     text-align: left;
     cursor: pointer;
     font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    transition: border-color 0.2s;
+}
+
+.dropdownToggle:hover {
+    border-color: #2c5aa0;
+}
+
+.arrow {
+    font-size: 0.7rem;
+    color: #666;
+    transition: transform 0.2s;
+}
+
+.dropdownToggleOpen .arrow {
+    transform: rotate(180deg);
 }
 
 .dropdownContent {
@@ -54,15 +58,28 @@
     top: calc(100% + 4px);
     left: 0;
     background: white;
-    padding: 1rem;
+    padding: 0.5rem;
     border: 1px solid #ddd;
     border-radius: 6px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     z-index: 100;
+    min-width: 100%;
 }
 
-.dropdownWrapper:hover .dropdownContent {
+.dropdownContent:not(:empty) {
     display: block;
+}
+
+.dropdownOption {
+    padding: 0.5rem 0.8rem;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    transition: background 0.2s;
+}
+
+.dropdownOption:hover {
+    background: #f0f4ff;
 }
 
 .rangeInputs {
