@@ -74,6 +74,24 @@ const SummaryInfo = () => {
             e => console.log(e)
         );
     }
+    useEffect(() => {
+        switch (sortBy) {
+            case 'subscribers_desc':
+                groupsData.sort((a, b) => b.abs_stats.participants_count - a.abs_stats.participants_count);
+                break;
+            case 'subscribers_asc':
+                groupsData.sort((a, b) => a.abs_stats.participants_count - b.abs_stats.participants_count);
+                break;
+            case 'name_desc':
+                groupsData.sort((a, b) => b.name.localeCompare(a.name));
+                break;
+            case 'name_asc':
+                groupsData.sort((a, b) => a.name.localeCompare(b.name));
+                break;
+            default:
+                break;
+        }
+    }, [groupsData, sortBy]);
 
     return (
         <div className={styles.siteContainer}>
