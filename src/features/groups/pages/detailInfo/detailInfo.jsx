@@ -26,118 +26,100 @@ const DetailInfo = () => {
 
     const navigate = useNavigate();
 
+    const fetchGroupDetailData = async () => {
+        let token = localStorage.getItem("access_token");
+        if (!token) {
+            if (!(await verifyAndRefreshToken())) {
+                navigate("/login");
+                return;
+            }
+            return;
+        }
+        token = localStorage.getItem("access_token");
+        const res = await fetch(`${BASE_URL}/${API_VERSION}/social-entities/groups/${slug}/?exclude_fields=service_account_id,user,external_id,slug`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+        });
+        if (res.ok) {
+            return await res.json();
+        }
+        return await res.text();
+    }
+
+    const fetchGroupBestPosts = async (group_id) => {
+        let token = localStorage.getItem("access_token");
+        if (!token) {
+            if (!(await verifyAndRefreshToken())) {
+                navigate("/login");
+                return;
+            }
+            return;
+        }
+        token = localStorage.getItem("access_token");
+        const res = await fetch(`${BASE_URL}/${API_VERSION}/stats/${group_id}/best/`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+        });
+        if (res.ok) {
+            return await res.json();
+        }
+    }
+
+    const fetchSnapshotStatsData = async (group_id) => {
+        let token = localStorage.getItem("access_token");
+        if (!token) {
+            if (!(await verifyAndRefreshToken())) {
+                navigate("/login");
+                return;
+            }
+            return;
+        }
+        token = localStorage.getItem("access_token");
+        const res = await fetch(`${BASE_URL}/${API_VERSION}/stats/${group_id}/`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+        });
+        if (res.ok) {
+            return await res.json();
+        }
+    }
+
     useEffect(() => {
-        const fetchGroupDetailData = async () => {
-            let token = localStorage.getItem("access_token");
-            if (!token) {
-                if (!(await verifyAndRefreshToken())) {
-                    navigate("/login");
-                    return;
-                }
-                return;
-            }
-            token = localStorage.getItem("access_token");
-            const res = await fetch(`${BASE_URL}/${API_VERSION}/social-entities/groups/${slug}/?exclude_fields=service_account_id,user,external_id,slug`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-            });
-            if (res.ok) {
-                return await res.json();
-            }
-            return await res.text();
-        }
-
-        const fetchGroupBestPosts = async (group_id) => {
-            let token = localStorage.getItem("access_token");
-            if (!token) {
-                if (!(await verifyAndRefreshToken())) {
-                    navigate("/login");
-                    return;
-                }
-                return;
-            }
-            token = localStorage.getItem("access_token");
-            const res = await fetch(`${BASE_URL}/${API_VERSION}/stats/${group_id}/best/`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-            });
-            if (res.ok) {
-                return await res.json();
-            }
-        }
-
-        const fetchSnapshotStatsData = async (group_id) => {
-            let token = localStorage.getItem("access_token");
-            if (!token) {
-                if (!(await verifyAndRefreshToken())) {
-                    navigate("/login");
-                    return;
-                }
-                return;
-            }
-            token = localStorage.getItem("access_token");
-            const res = await fetch(`${BASE_URL}/${API_VERSION}/stats/${group_id}/`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-            });
-            if (res.ok) {
-                return await res.json();
-            }
-        }
-        const daily = [];
-        const hourly = [];
-
         fetchGroupDetailData().then(
-            res => {
+            async res => {
                 setGroupData(res);
-                fetchGroupBestPosts(res.id).then(
-                    res => {
-                        setBestPostData(res);
+                const [bestPosts, snapshotStats] = await Promise.all([
+                    fetchGroupBestPosts(res.id),
+                    fetchSnapshotStatsData(res.id)
+                ]);
+                setBestPostData(bestPosts);
+                const daily = [];
+                const hourly = [];
+                for (let i = 0; i < snapshotStats.length; i++) {
+                    if (snapshotStats[i].type === 'DAILY') {
+                        daily.push(snapshotStats[i]);
+                    } else {
+                        hourly.push(snapshotStats[i]);
                     }
-                ).catch(
-                    async (e) => {
-                        console.error(e);
-                        await sendForDebug(e);
-                    }
-                );
-
-                fetchSnapshotStatsData(res.id).then(
-                    res => {
-                        for (let i = 0; i < res.length; i++) {
-                            if (res[i].type === 'DAILY') {
-                                daily.push(res[i]);
-                            }
-                            else if (res[i].type === 'HOURLY') {
-                                hourly.push(res[i]);
-                            }
-                        }
-                        setDailyData(daily);
-                        setHourlyData(hourly);
-                    }
-                ).catch(
-                    async (e) => {
-                        console.error(e);
-                        await sendForDebug(e);
-                    }
-                )
+                }
+                setDailyData(daily);
+                setHourlyData(hourly);
             }
-        ).catch(
-            async (e) => {
-                console.error(e);
-                await sendForDebug(e);
-            }
-        );
+        ).catch(async e => {
+            console.error(e);
+            await sendForDebug(e);
+        });
 
-    }, [slug]);
+    }, []);
 
     const stats = groupData?.abs_stats;
     useEffect(() => {
@@ -299,13 +281,11 @@ const DetailInfo = () => {
             setShowDeleteModal(false);
             navigate('/groups');
         }
-        // Здесь будет fetch запрос на бэк
     };
 
     if (!groupData) {
         return <div>Загрузка...</div>;
     }
-
 
     const addedAt = new Date(groupData.added_at);
     const addedDate = addedAt.toLocaleDateString('ru-RU', {

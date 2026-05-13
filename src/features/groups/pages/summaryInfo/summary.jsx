@@ -4,6 +4,7 @@ import ResultCard from "../../components/resultCard/resultCard.jsx";
 import SearchFilters from "../../components/searchFilters/searchFilters.jsx";
 import {useNavigate} from "react-router-dom";
 import {API_VERSION, BASE_URL, sendForDebug, verifyAndRefreshToken} from "../../../../utils/utils.js";
+import useCompareStore from "../../../../store/compareStore.js";
 
 
 const SummaryInfo = () => {
@@ -17,6 +18,9 @@ const SummaryInfo = () => {
     const [maxParticipants, setMaxParticipants] = useState(-1);
     const [sortBy, setSortBy] = useState("subscribers_desc");
     const [searchQuery, setSearchQuery] = useState("");
+
+    const compareIds = useCompareStore(state => state.compareIds);
+    const toggleCompareId = useCompareStore(state => state.toggleCompareId);
 
     const [currentState, setCurrentState] = useState({
         "platform": platform,
@@ -153,6 +157,8 @@ const SummaryInfo = () => {
                             title={group.name}
                             detailsLink={group.slug}
                             stats={group.abs_stats}
+                            isSelected={compareIds.includes(group.id)}
+                            onToggleCompare={toggleCompareId}
                         />
                     })}
                 </div>

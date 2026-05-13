@@ -17,6 +17,7 @@ import SummaryInfo from "./features/groups/pages/summaryInfo/summary.jsx";
 import DetailInfo from "./features/groups/pages/detailInfo/detailInfo.jsx";
 
 import {useMemo} from "react";
+import CompareGroups from "./features/groups/pages/compare/compareGroups.jsx";
 
 // --- Auth hook ---
 const useAuthData = () => {
@@ -102,6 +103,7 @@ const App = () => {
                             <Route path="/groups/:slug" element={<DetailInfo/>}/>
                             <Route path="/profile" element={<ProfileSection/>}/>
                             <Route path="/profile/groups/add" element={<AddGroup/>}/>
+                            <Route path="/compare" element={<CompareGroups/>}/>
                         </Route>
 
                         {/* ADMIN ONLY */}

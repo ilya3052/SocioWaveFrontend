@@ -94,6 +94,12 @@
     font-size: 1.1rem;
 }
 
+.compareCount {
+    color: #2c5aa0;
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
 .resultsGrid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
