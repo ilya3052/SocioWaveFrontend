@@ -1,0 +1,48 @@
+.row:hover {
+    background: #f8f9fa;
+}
+
+.groupLink {
+    color: #2c5aa0;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.groupLink:hover {
+    text-decoration: underline;
+}
+
+.platformBadge {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    color: white;
+}
+
+.tg {
+    background: #2c5aa0;
+}
+
+.vk {
+    background: #4c75a3;
+}
+
+.growth {
+    font-weight: 600;
+}
+
+.positive {
+    color: #28a745;
+}
+
+.negative {
+    color: #dc3545;
+}
+
+.chartPlaceholder {
+    color: #888;
+    font-size: 0.8rem;
+    font-style: italic;
+}
