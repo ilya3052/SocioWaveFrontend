@@ -1,6 +1,5 @@
 import React, {useEffect, useState} from 'react';
 import styles from './compareGroups.module.css';
-import CompareColumn from '../../components/compareRow/compareColumn.jsx';
 import useCompareStore from "../../../../store/compareStore.js";
 import {useNavigate} from "react-router-dom";
 import {API_VERSION, BASE_URL, verifyAndRefreshToken} from "../../../../utils/utils.js";
