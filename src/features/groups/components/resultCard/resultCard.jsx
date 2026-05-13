@@ -4,10 +4,13 @@ import styles from './ResultCard.module.css';
 import {Link} from "react-router-dom";
 
 const ResultCard = ({
+                        id,
                         platform,
                         title,
                         stats,
-                        detailsLink = "#"
+                        detailsLink = "#",
+                        isSelected,
+                        onToggleCompare
                     }) => {
     const isTg = platform.toLowerCase() === 'tg';
 
@@ -27,7 +30,12 @@ const ResultCard = ({
         </span>
                 <div className={styles.cardTitle}>{title}</div>
                 <label className={styles.compareToggle}>
-                    <input type="checkbox" className={styles.compareCheckbox}/>
+                    <input
+                        type="checkbox"
+                        className={styles.compareCheckbox}
+                        checked={isSelected}
+                        onChange={() => onToggleCompare(id)}
+                    />
                     <span className={styles.compareLabel}>Сравнить</span>
                 </label>
             </div>
