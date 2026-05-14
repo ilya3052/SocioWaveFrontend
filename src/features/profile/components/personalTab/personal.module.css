@@ -117,7 +117,7 @@
     margin-top: 1.5rem;
 }
 
-.platformStatus div {
+.platformRow {
     display: flex;
     align-items: center;
     gap: 1rem;
@@ -126,13 +126,13 @@
     border-bottom: 1px solid #e9ecef;
 }
 
-.platformStatus div:last-child {
+.platformStatus > div:last-child {
     margin-bottom: 0;
     padding-bottom: 0;
     border-bottom: none;
 }
 
-.platformStatus strong {
+.platformRow > strong {
     width: 60px;
     color: #333;
 }
@@ -153,6 +153,25 @@
 .linkPlatform:hover {
     text-decoration: underline;
     background: #f8f9fa;
+}
+
+.unlinkPlatform {
+    color: #dc3545;
+    margin-left: 12px;
+    padding: 0.45rem 1rem;
+    border: 1px solid #dc3545;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    background: transparent;
+}
+
+.unlinkPlatform:hover {
+    background: #dc3545;
+    color: white;
 }
 
 /* Кнопка подтверждения email */

@@ -296,20 +296,20 @@ const PersonalTab = () => {
                 }
             }
             let data;
-            if (platform === 'tg') {
+            if (platform === 'TG') {
                 data = {
                     tg_id: null,
                     tg_link: null
                 }
             }
-            else if (platform === 'vk') {
+            else if (platform === 'VK') {
                 data = {
                     vk_id: null,
                     vk_link: null
                 }
             }
             console.log(data);
-            const res = await fetch(`${BASE_URL}/${API_VERSION}/users/me/`, {
+            const res = await fetch(`${BASE_URL}/${API_VERSION}/users/undind-social/?platform=${platform}`, {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
@@ -474,7 +474,7 @@ const PersonalTab = () => {
                         {!personalData.tg_link ? (
                             <button onClick={handleTGBind} className={styles.linkPlatform}>Привязать</button>
                         ) : (
-                            <button onClick={() => handleUnbind('tg')} className={styles.unlinkPlatform}>Отвязать</button>
+                            <button onClick={() => handleUnbind('TG')} className={styles.unlinkPlatform}>Отвязать</button>
                         )}
                     </div>
                     <div className={styles.platformRow}>
@@ -483,7 +483,7 @@ const PersonalTab = () => {
                         {!personalData.vk_link ? (
                             <div id="vkAuth"></div>
                         ) : (
-                            <button onClick={() => handleUnbind('vk')} className={styles.unlinkPlatform}>Отвязать</button>
+                            <button onClick={() => handleUnbind('VK')} className={styles.unlinkPlatform}>Отвязать</button>
                         )}
                     </div>
                 </div>
