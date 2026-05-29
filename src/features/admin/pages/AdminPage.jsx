@@ -13,6 +13,7 @@ const AdminPage = () => {
 
     const [groupStats, setGroupStats] = useState({vk_count: null, tg_count: null});
     const [accountStats, setAccountStats] = useState({vk_count: null, tg_count: null});
+    const [isSaving, setIsSaving] = useState(false);
     const [loadStats, setLoadStats] = useState({
         min: {id: null, name: null, count: null},
         max: {id: null, name: null, count: null}
@@ -60,6 +61,36 @@ const AdminPage = () => {
         };
     }, [navigate]);
 
+    const saveReport = async (reportType) => {
+        setIsSaving(true);
+        try {
+            let token = localStorage.getItem("access_token");
+            if (!token) {
+                if (!(await verifyAndRefreshToken())) {
+                    navigate("/login");
+                    return;
+                }
+            }
+            token = localStorage.getItem("access_token");
+            const res = await fetch(`${BASE_URL}/${API_VERSION}/reports/admin/`, {
+                method: 'POST',
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({type: reportType.toUpperCase()})
+            });
+            if (res.ok) {
+                const data = await res.json();
+                console.log(data);
+                window.open(data, '_blank');
+            }
+        } finally {
+            setIsSaving(false);
+        }
+    }
+
+
     return (
         <main className={styles.adminContainer}>
             <GroupsStats stats={groupStats}/>
@@ -67,7 +98,20 @@ const AdminPage = () => {
             <LoadStats stats={loadStats} groupStats={groupStats}/>
 
             <div className={styles.saveBtnContainer}>
-                <button className={styles.saveBtn}>Сохранить в PDF</button>
+                <button
+                    className={`${styles.saveBtn} ${isSaving ? styles.saving : ''}`}
+                    onClick={async () => await saveReport('xlsx')}
+                    disabled={isSaving}
+                >
+                    {isSaving ? 'Загрузка...' : 'Сохранить в Excel'}
+                </button>
+                <button
+                    className={`${styles.saveBtn} ${isSaving ? styles.saving : ''}`}
+                    onClick={async () => await saveReport('pdf')}
+                    disabled={isSaving}
+                >
+                    {isSaving ? 'Загрузка...' : 'Сохранить в PDF'}
+                </button>
             </div>
         </main>
     );
