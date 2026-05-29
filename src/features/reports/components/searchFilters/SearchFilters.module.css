@@ -1,0 +1,74 @@
+.searchSection {
+    background: #fff;
+    padding: 2rem;
+    margin: 1rem auto;
+    max-width: 1200px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.searchCompactRow {
+    display: flex;
+    gap: 1rem;
+    align-items: end;
+    flex-wrap: wrap;
+}
+
+.filtersInline {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.filterGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.filterTitle {
+    font-size: 0.9rem;
+    color: #666;
+    font-weight: 500;
+}
+
+.platformSelect,
+.periodSelect {
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background: white;
+    min-width: 180px;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+.platformSelect:focus,
+.periodSelect:focus {
+    outline: none;
+    border-color: #2c5aa0;
+}
+
+.searchInput {
+    flex: 1;
+    min-width: 250px;
+    padding: 0.7rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+.searchBtn {
+    padding: 0.7rem 1.5rem;
+    background: #2c5aa0;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background 0.3s;
+}
+
+.searchBtn:hover {
+    background: #1e3d6f;
+}

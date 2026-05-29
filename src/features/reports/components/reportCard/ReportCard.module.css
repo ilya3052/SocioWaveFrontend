@@ -1,0 +1,63 @@
+.reportCard {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.reportCard:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.reportTitle {
+    font-weight: 500;
+    flex: 1;
+}
+
+.reportMeta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 0 2rem;
+}
+
+.platformBadge {
+    padding: 0.2rem 0.6rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: white;
+}
+
+.platform-tg {
+    background: #2c5aa0;
+}
+
+.platform-vk {
+    background: #4c75a3;
+}
+
+.reportDate {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.downloadLink {
+    color: #2c5aa0;
+    text-decoration: none;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border: 1px solid #2c5aa0;
+    border-radius: 5px;
+    transition: all 0.3s;
+}
+
+.downloadLink:hover {
+    background: #2c5aa0;
+    color: white;
+}

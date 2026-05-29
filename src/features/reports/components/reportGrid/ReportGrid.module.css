@@ -1,0 +1,21 @@
+.reportsResults {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem 2rem;
+}
+
+.resultsHeader {
+    margin-bottom: 1.5rem;
+}
+
+.resultsCount {
+    color: #666;
+    font-size: 1.1rem;
+}
+
+.reportsGrid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
