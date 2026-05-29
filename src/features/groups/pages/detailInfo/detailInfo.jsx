@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useRef} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import styles from './detailInfo.module.css';
 import TopPosts from "../../components/topPosts/topPosts.jsx";
 import {useNavigate, useParams} from "react-router-dom";
@@ -23,7 +23,7 @@ const DetailInfo = () => {
     const chartInstanceRef = useRef(null);
     const activityChartRef = useRef(null);
     const activityChartInstanceRef = useRef(null);
-
+    const [isSaving, setIsSaving] = useState(false);
     const navigate = useNavigate();
 
     const fetchGroupDetailData = async () => {
@@ -294,6 +294,34 @@ const DetailInfo = () => {
         year: 'numeric'
     });
 
+    const saveReport = async (reportType) => {
+        setIsSaving(true);
+        try {
+            let token = localStorage.getItem("access_token");
+            if (!token) {
+                if (!(await verifyAndRefreshToken())) {
+                    navigate("/login");
+                    return;
+                }
+            }
+            token = localStorage.getItem("access_token");
+            const res = await fetch(`${BASE_URL}/${API_VERSION}/reports/group/${groupData.id}/?type=${reportType.toUpperCase()}`, {
+                method: 'GET',
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+            });
+            if (res.ok) {
+                const data = await res.json();
+                console.log(data);
+                window.open(`${window.location.origin}/${data}`, '_blank');
+            }
+        } finally {
+            setIsSaving(false);
+        }
+    }
+
     return (
         <main className={styles.groupInfoContainer}>
             <section className={styles.groupHeader}>
@@ -373,14 +401,6 @@ const DetailInfo = () => {
                         <div className={styles.statValue}>{stats.comms_count}</div>
                         <div className={styles.statLabel}>Комментарии</div>
                     </div>
-                    <div className={styles.statCard}>
-                        <div className={styles.statValue}>—</div>
-                        <div className={styles.statLabel}>Охваты</div>
-                    </div>
-                </div>
-
-                <div className={styles.updateBtnContainer}>
-                    <button className={styles.actionBtn}>Актуализировать информацию</button>
                 </div>
             </section>
 
@@ -440,8 +460,20 @@ const DetailInfo = () => {
 
             {/* Кнопка сохранить */}
             <div className={styles.saveBtnContainer}>
-                <button className={styles.saveBtn}>Сохранить в PDF</button>
-            </div>
+                <button
+                    className={`${styles.saveBtn} ${isSaving ? styles.saving : ''}`}
+                    onClick={async () => await saveReport('xlsx')}
+                    disabled={isSaving}
+                >
+                    {isSaving ? 'Загрузка...' : 'Сохранить в Excel'}
+                </button>
+                <button
+                    className={`${styles.saveBtn} ${isSaving ? styles.saving : ''}`}
+                    onClick={async () => await saveReport('pdf')}
+                    disabled={isSaving}
+                >
+                    {isSaving ? 'Загрузка...' : 'Сохранить в PDF'}
+                </button></div>
         </main>
     );
 };
