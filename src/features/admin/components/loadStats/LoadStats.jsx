@@ -54,10 +54,6 @@ const LoadStats = ({stats, groupStats}) => {
                     </div>
                 </div>
             </div>
-
-            {/*<button className={styles.notifyBtn}>*/}
-            {/*    Уведомить пользователей о необходимости смены аккаунта*/}
-            {/*</button>*/}
         </section>
     );
 };

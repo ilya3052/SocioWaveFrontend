@@ -20,25 +20,6 @@ const GroupsStats = (stats) => {
                 <PlatformChart
                     groupStats={group_stats}
                 />
-                {/*<div className={styles.chartCard}>*/}
-                {/*    <h3>Распределение по платформам</h3>*/}
-
-                {/*    <div className={styles.chartPlaceholder}>*/}
-                {/*        <div className={styles.pieChart}></div>*/}
-
-                {/*        <div className={styles.chartLegend}>*/}
-                {/*            <div className={styles.legendItem}>*/}
-                {/*                <span className={`${styles.legendColor} ${styles.tgColor}`}></span>*/}
-                {/*                <span className={styles.legendText}>VK - 65%</span>*/}
-                {/*            </div>*/}
-
-                {/*            <div className={styles.legendItem}>*/}
-                {/*                <span className={`${styles.legendColor} ${styles.vkColor}`}></span>*/}
-                {/*                <span className={styles.legendText}>Telegram - 35%</span>*/}
-                {/*            </div>*/}
-                {/*        </div>*/}
-                {/*    </div>*/}
-                {/*</div>*/}
             </div>
         </section>
     );
