@@ -5,21 +5,37 @@
     gap: 0.5rem;
 }
 
+.arrowBtn,
 .pageBtn {
-    padding: 0.5rem 1rem;
+    width: 2.5rem;
+    height: 2.5rem;
     border: 1px solid #ddd;
     background: white;
     border-radius: 5px;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     transition: all 0.3s;
+    font-size: 0.9rem;
 }
 
-.pageBtn:hover {
+.arrowBtn:hover:not(:disabled),
+.pageBtn:hover:not(:disabled) {
     background: #f8f9fa;
 }
 
+.arrowBtn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.pageBtn {
+    font-weight: 500;
+}
+
 .pageBtn.active {
-    background: #2c5aa0;
+    background: #007bff;
     color: white;
-    border-color: #2c5aa0;
+    border-color: #007bff;
 }
