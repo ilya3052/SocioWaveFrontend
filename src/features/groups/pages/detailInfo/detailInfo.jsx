@@ -96,23 +96,26 @@ const DetailInfo = () => {
     useEffect(() => {
         fetchGroupDetailData().then(
             async res => {
+                console.log(res)
                 setGroupData(res);
-                const [bestPosts, snapshotStats] = await Promise.all([
-                    fetchGroupBestPosts(res.id),
-                    fetchSnapshotStatsData(res.id)
-                ]);
-                setBestPostData(bestPosts);
-                const daily = [];
-                const hourly = [];
-                for (let i = 0; i < snapshotStats.length; i++) {
-                    if (snapshotStats[i].type === 'DAILY') {
-                        daily.push(snapshotStats[i]);
-                    } else {
-                        hourly.push(snapshotStats[i]);
+                if (res.status === 'SUCCESS') {
+                    const [bestPosts, snapshotStats] = await Promise.all([
+                        fetchGroupBestPosts(res.id),
+                        fetchSnapshotStatsData(res.id)
+                    ]);
+                    setBestPostData(bestPosts);
+                    const daily = [];
+                    const hourly = [];
+                    for (let i = 0; i < snapshotStats.length; i++) {
+                        if (snapshotStats[i].type === 'DAILY') {
+                            daily.push(snapshotStats[i]);
+                        } else {
+                            hourly.push(snapshotStats[i]);
+                        }
                     }
+                    setDailyData(daily);
+                    setHourlyData(hourly);
                 }
-                setDailyData(daily);
-                setHourlyData(hourly);
             }
         ).catch(async e => {
             console.error(e);
@@ -378,61 +381,76 @@ const DetailInfo = () => {
                 </div>
             </section>
 
-            <section className={styles.groupStats}>
-                <h2>Статистика</h2>
-                <div className={styles.statsGrid}>
-                    <div className={styles.statCard}>
-                        <div className={styles.statValue}>{stats.posts_count}</div>
-                        <div className={styles.statLabel}>Посты</div>
+            {groupData.status === 'PENDING' && (
+                <section className={styles.statusBlock}>
+                    <div className={styles.statusTitle}>Информация ещё не собрана</div>
+                    <div className={styles.statusSubtitle}>Статистика появится после первого сбора данных</div>
+                </section>
+            )}
+            {groupData.status === 'COLLECTING' && (
+                <section className={styles.statusBlock}>
+                    <div className={styles.statusTitle}>Информация собирается</div>
+                    <div className={styles.statusSubtitle}>Данные обрабатываются, скоро они появятся на странице</div>
+                </section>
+            )}
+            {groupData.status === 'SUCCESS' && (
+                <section className={styles.groupStats}>
+                    <h2>Статистика</h2>
+                    <div className={styles.statsGrid}>
+                        <div className={styles.statCard}>
+                            <div className={styles.statValue}>{stats.posts_count}</div>
+                            <div className={styles.statLabel}>Посты</div>
+                        </div>
+                        <div className={styles.statCard}>
+                            <div className={styles.statValue}>{stats.participants_count}</div>
+                            <div className={styles.statLabel}>Подписчики</div>
+                        </div>
+                        <div className={styles.statCard}>
+                            <div className={styles.statValue}>{stats.likes_count}</div>
+                            <div className={styles.statLabel}>Лайки</div>
+                        </div>
+                        <div className={styles.statCard}>
+                            <div className={styles.statValue}>{stats.repost_count}</div>
+                            <div className={styles.statLabel}>Репосты</div>
+                        </div>
+                        <div className={styles.statCard}>
+                            <div className={styles.statValue}>{stats.comms_count}</div>
+                            <div className={styles.statLabel}>Комментарии</div>
+                        </div>
                     </div>
-                    <div className={styles.statCard}>
-                        <div className={styles.statValue}>{stats.participants_count}</div>
-                        <div className={styles.statLabel}>Подписчики</div>
-                    </div>
-                    <div className={styles.statCard}>
-                        <div className={styles.statValue}>{stats.likes_count}</div>
-                        <div className={styles.statLabel}>Лайки</div>
-                    </div>
-                    <div className={styles.statCard}>
-                        <div className={styles.statValue}>{stats.repost_count}</div>
-                        <div className={styles.statLabel}>Репосты</div>
-                    </div>
-                    <div className={styles.statCard}>
-                        <div className={styles.statValue}>{stats.comms_count}</div>
-                        <div className={styles.statLabel}>Комментарии</div>
-                    </div>
-                </div>
-            </section>
+                </section>
+            )}
 
-            {/* Блок 3.1: лучшие посты */}
-            <TopPosts bestPosts={bestPostData}/>
-
-            {/* Блок 4: графики */}
-            <section className={styles.groupCharts}>
-                <h2>Графики</h2>
-                <div className={styles.chartsGrid}>
-                    <div className={styles.chartCard}>
-                        <h3>Рост подписчиков</h3>
-                        {dailyData && dailyData.length ? (
-                            <div className={styles.chartContainer}>
-                                <canvas ref={chartRef}></canvas>
+            {groupData.status === 'SUCCESS' && (
+                <>
+                    <TopPosts bestPosts={bestPostData}/>
+                    <section className={styles.groupCharts}>
+                        <h2>Графики</h2>
+                        <div className={styles.chartsGrid}>
+                            <div className={styles.chartCard}>
+                                <h3>Рост подписчиков</h3>
+                                {dailyData && dailyData.length ? (
+                                    <div className={styles.chartContainer}>
+                                        <canvas ref={chartRef}></canvas>
+                                    </div>
+                                ) : (
+                                    <div className={styles.noData}>Нет данных для графика</div>
+                                )}
                             </div>
-                        ) : (
-                            <div className={styles.noData}>Нет данных для графика</div>
-                        )}
-                    </div>
-                    <div className={styles.chartCard}>
-                        <h3>Активность по часам (лайки и просмотры)</h3>
-                        {hourlyData && hourlyData.length ? (
-                            <div className={styles.chartContainer}>
-                                <canvas ref={activityChartRef}></canvas>
+                            <div className={styles.chartCard}>
+                                <h3>Активность по часам (лайки и просмотры)</h3>
+                                {hourlyData && hourlyData.length ? (
+                                    <div className={styles.chartContainer}>
+                                        <canvas ref={activityChartRef}></canvas>
+                                    </div>
+                                ) : (
+                                    <div className={styles.noData}>Нет данных для графика</div>
+                                )}
                             </div>
-                        ) : (
-                            <div className={styles.noData}>Нет данных для графика</div>
-                        )}
-                    </div>
-                </div>
-            </section>
+                        </div>
+                    </section>
+                </>
+            )}
 
             {/* Модальное окно удаления */}
             {showDeleteModal && (
