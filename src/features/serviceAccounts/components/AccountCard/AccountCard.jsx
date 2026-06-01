@@ -18,13 +18,13 @@ const AccountCard = ({account, onDelete, onActivate, platform, accountsCount}) =
                 <div className={styles.accountGroups}>{account.groups_count} групп</div>
                 <div className={styles.accountLoad}>
 
-                    <span className={`${styles.loadPercentage} ${getLoadColor(account.load)}`}>
-                        {account.load}%
+                    <span className={`${styles.loadPercentage} ${getLoadColor(account.load.toFixed(2))}`}>
+                        { (account.load % 1 === 0) ? account.load : account.load.toFixed(2) }%
                     </span>
                     <div className={styles.loadBar}>
                         <div
-                            className={`${styles.loadFill} ${getLoadColor(account.load)}`}
-                            style={{width: `${account.load}%`}}
+                            className={`${styles.loadFill} ${getLoadColor(account.load.toFixed(2))}`}
+                            style={{width: `${account.load.toFixed(2)}%`}}
                         ></div>
                     </div>
                 </div>
