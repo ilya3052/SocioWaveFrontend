@@ -13,31 +13,6 @@ const ServiceAccounts = () => {
 
     const navigate = useNavigate();
 
-    const getAllRelatedGroup = async (accountId, token) => {
-        try {
-            const res = await fetch(`${BASE_URL}/${API_VERSION}/service-accounts/${accountId}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-
-            if (res.ok) {
-                return (await res.json()).groups;
-            } else {
-                const err = await res.text();
-                await sendForDebug(err);
-                console.log('Ошибка' + err);
-                return null;
-            }
-        } catch (e) {
-            console.log(e);
-            await sendForDebug(e);
-            return null;
-        }
-    }
-
     const deleteServiceAccount = async (accountId, token) => {
         try {
             const res = await fetch(`${BASE_URL}/${API_VERSION}/service-accounts/${accountId}`, {
@@ -55,53 +30,7 @@ const ServiceAccounts = () => {
         }
     }
 
-    const updateGroups = async (groups, platform, token) => {
-        if (!token) {
-            if (!(await verifyAndRefreshToken())) {
-                navigate("/login");
-                return;
-            }
-            return;
-        }
-        for (const group of groups) {
-            const getAccountRequest = await fetch(`${BASE_URL}/${API_VERSION}/service-accounts/${platform}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            let accountId;
-            if (getAccountRequest.ok) {
-                const data = await getAccountRequest.json();
-                accountId = data.id;
-            } else {
-                const err = await getAccountRequest.text();
-                console.error('Ошибка при получении аккаунта: ' + err);
-                await sendForDebug(err);
-                return false;
-            }
-            const updateAccountRequest = await fetch(`${BASE_URL}/${API_VERSION}/social-entities/groups/${group.id}`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    service_account_id: accountId,
-                })
-            });
-            if (!updateAccountRequest.ok) {
-                const err = await updateAccountRequest.text();
-                console.log(err);
-                await sendForDebug(err);
-                return false;
-            }
-        }
-        return true;
-    }
-
-    const handleDeleteAccount = async (accountId, platform) => {
+    const handleDeleteAccount = async (accountId) => {
         let token = localStorage.getItem("access_token");
         if (!token) {
             if (!(await verifyAndRefreshToken())) {
@@ -110,23 +39,9 @@ const ServiceAccounts = () => {
             }
             return;
         }
-        // 1) запрос id всех групп связанных с аккаунтом
-        // 2) перепривязка каждой группы к новому аккаунту (добавить функционал по исключению удаляемого аккаунта из выборки через not acc_id__in=[1,2,3]
-        // 3) удаление старого во избежание его повторной привязки к группам
-        const related_groups = await getAllRelatedGroup(accountId, token);
-        console.log(related_groups);
-        if (!related_groups) {
-            alert('Произошла ошибка при удалении сервисного аккаунта');
-        }
-
         if (!(await deleteServiceAccount(accountId, token))) {
             alert('Произошла ошибка при удалении сервисного аккаунта');
             return;
-        }
-
-        // возможно стоит посылать запросы в очередь которая будет с задержкой отправлять их на сервер
-        if (!(await updateGroups(related_groups, platform, token))) {
-            alert('Произошла ошибка при удалении сервисного аккаунта');
         }
         window.location.reload();
     }
