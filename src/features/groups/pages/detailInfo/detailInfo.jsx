@@ -3,9 +3,7 @@ import styles from './detailInfo.module.css';
 import TopPosts from "../../components/topPosts/topPosts.jsx";
 import {useNavigate, useParams} from "react-router-dom";
 import {API_VERSION, BASE_URL, sendForDebug, verifyAndRefreshToken} from "../../../../utils/utils.js";
-import {Chart, registerables} from 'chart.js';
-
-Chart.register(...registerables);
+import * as echarts from 'echarts';
 
 const DetailInfo = () => {
     const {slug} = useParams();
@@ -19,12 +17,19 @@ const DetailInfo = () => {
 
     const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-    const chartRef = useRef(null);
-    const chartInstanceRef = useRef(null);
-    const activityChartRef = useRef(null);
-    const activityChartInstanceRef = useRef(null);
+    const subscribersDivRef = useRef(null);
+    const subscribersChartRef = useRef(null);
+    // const activityDivRef = useRef(null);
+    // const activityChartRef = useRef(null);
+    const deltaDivRef = useRef(null);
+    const deltaChartRef = useRef(null);
+    const histContainerRefs = [useRef(null), useRef(null), useRef(null)];
+    const histChartInstances = useRef([]);
+    const [histClickInfo, setHistClickInfo] = useState(null);
+    const [histScales, setHistScales] = useState(['log', 'log', 'log']);
     const [isSaving, setIsSaving] = useState(false);
     const navigate = useNavigate();
+    const stats = groupData?.abs_stats;
 
     const fetchGroupDetailData = async () => {
         let token = localStorage.getItem("access_token");
@@ -93,10 +98,51 @@ const DetailInfo = () => {
         }
     }
 
+    const handleBarClick = async (post_id, range) => {
+        if (post_id <= 0) return;
+
+        setHistClickInfo({
+            loading: true,
+            group_name: groupData?.name || 'Название группы',
+            group_url: groupData?.external_url || '#',
+            pub_date: null,
+            text: null,
+            likes: null,
+            comments: null,
+            views: null,
+            reposts: null,
+            range,
+            post_id,
+        });
+
+        let token = localStorage.getItem("access_token");
+        if (!token) {
+            if (!(await verifyAndRefreshToken())) {
+                navigate("/login");
+                return;
+            }
+        }
+        token = localStorage.getItem("access_token");
+        const res = await fetch(`${BASE_URL}/${API_VERSION}/social-entities/groups/${groupData.id}/get-post/?post_id=${post_id}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+        });
+
+        if (res.ok) {
+            const data = await res.json();
+            setHistClickInfo({ loading: false, ...data });
+        } else {
+            setHistClickInfo(prev => ({ ...prev, loading: false }));
+        }
+    }
+
     useEffect(() => {
         fetchGroupDetailData().then(
             async res => {
-                console.log(res)
+                // console.log(res)
                 setGroupData(res);
                 if (res.status === 'SUCCESS') {
                     const [bestPosts, snapshotStats] = await Promise.all([
@@ -113,6 +159,109 @@ const DetailInfo = () => {
                             hourly.push(snapshotStats[i]);
                         }
                     }
+                    setDailyData(
+                        [{'stats': {'participants_delta': 9}, 'timestamp': '2026-02-23T13:29:25.631'},
+                            {'stats': {'participants_delta': 1}, 'timestamp': '2026-02-24T13:29:25.631'},
+                            {'stats': {'participants_delta': 5}, 'timestamp': '2026-02-25T13:29:25.631'},
+                            {'stats': {'participants_delta': 7}, 'timestamp': '2026-02-26T13:29:25.631'},
+                            {'stats': {'participants_delta': 9}, 'timestamp': '2026-02-27T13:29:25.631'},
+                            {'stats': {'participants_delta': 13}, 'timestamp': '2026-02-28T13:29:25.631'},
+                            {'stats': {'participants_delta': -1}, 'timestamp': '2026-03-01T13:29:25.631'},
+                            {'stats': {'participants_delta': 6}, 'timestamp': '2026-03-02T13:29:25.631'},
+                            {'stats': {'participants_delta': 8}, 'timestamp': '2026-03-03T13:29:25.631'},
+                            {'stats': {'participants_delta': 11}, 'timestamp': '2026-03-04T13:29:25.631'},
+                            {'stats': {'participants_delta': 3}, 'timestamp': '2026-03-05T13:29:25.631'},
+                            {'stats': {'participants_delta': 0}, 'timestamp': '2026-03-06T13:29:25.631'},
+                            {'stats': {'participants_delta': 15}, 'timestamp': '2026-03-07T13:29:25.631'},
+                            {'stats': {'participants_delta': 12}, 'timestamp': '2026-03-08T13:29:25.631'},
+                            {'stats': {'participants_delta': 5}, 'timestamp': '2026-03-09T13:29:25.631'},
+                            {'stats': {'participants_delta': 13}, 'timestamp': '2026-03-10T13:29:25.631'},
+                            {'stats': {'participants_delta': 11}, 'timestamp': '2026-03-11T13:29:25.631'},
+                            {'stats': {'participants_delta': 1}, 'timestamp': '2026-03-12T13:29:25.631'},
+                            {'stats': {'participants_delta': 15}, 'timestamp': '2026-03-13T13:29:25.631'},
+                            {'stats': {'participants_delta': 11}, 'timestamp': '2026-03-14T13:29:25.631'},
+                            {'stats': {'participants_delta': 14}, 'timestamp': '2026-03-15T13:29:25.631'},
+                            {'stats': {'participants_delta': 13}, 'timestamp': '2026-03-16T13:29:25.631'},
+                            {'stats': {'participants_delta': 8}, 'timestamp': '2026-03-17T13:29:25.631'},
+                            {'stats': {'participants_delta': 12}, 'timestamp': '2026-03-18T13:29:25.631'},
+                            {'stats': {'participants_delta': 10}, 'timestamp': '2026-03-19T13:29:25.631'},
+                            {'stats': {'participants_delta': 2}, 'timestamp': '2026-03-20T13:29:25.631'},
+                            {'stats': {'participants_delta': 5}, 'timestamp': '2026-03-21T13:29:25.631'},
+                            {'stats': {'participants_delta': 6}, 'timestamp': '2026-03-22T13:29:25.631'},
+                            {'stats': {'participants_delta': 15}, 'timestamp': '2026-03-23T13:29:25.631'},
+                            {'stats': {'participants_delta': 2}, 'timestamp': '2026-03-24T13:29:25.631'},
+                            {'stats': {'participants_delta': 13}, 'timestamp': '2026-03-25T13:29:25.631'},
+                            {'stats': {'participants_delta': 9}, 'timestamp': '2026-03-26T13:29:25.631'},
+                            {'stats': {'participants_delta': 4}, 'timestamp': '2026-03-27T13:29:25.631'},
+                            {'stats': {'participants_delta': 1}, 'timestamp': '2026-03-28T13:29:25.631'},
+                            {'stats': {'participants_delta': 8}, 'timestamp': '2026-03-29T13:29:25.631'},
+                            {'stats': {'participants_delta': 3}, 'timestamp': '2026-03-30T13:29:25.631'},
+                            {'stats': {'participants_delta': 9}, 'timestamp': '2026-03-31T13:29:25.631'},
+                            {'stats': {'participants_delta': 10}, 'timestamp': '2026-04-01T13:29:25.631'},
+                            {'stats': {'participants_delta': 15}, 'timestamp': '2026-04-02T13:29:25.631'},
+                            {'stats': {'participants_delta': 4}, 'timestamp': '2026-04-03T13:29:25.631'},
+                            {'stats': {'participants_delta': 0}, 'timestamp': '2026-04-04T13:29:25.631'},
+                            {'stats': {'participants_delta': 6}, 'timestamp': '2026-04-05T13:29:25.631'},
+                            {'stats': {'participants_delta': 7}, 'timestamp': '2026-04-06T13:29:25.631'},
+                            {'stats': {'participants_delta': 7}, 'timestamp': '2026-04-07T13:29:25.631'},
+                            {'stats': {'participants_delta': 2}, 'timestamp': '2026-04-08T13:29:25.631'},
+                            {'stats': {'participants_delta': 10}, 'timestamp': '2026-04-09T13:29:25.631'},
+                            {'stats': {'participants_delta': 12}, 'timestamp': '2026-04-10T13:29:25.631'},
+                            {'stats': {'participants_delta': 13}, 'timestamp': '2026-04-11T13:29:25.631'},
+                            {'stats': {'participants_delta': 4}, 'timestamp': '2026-04-12T13:29:25.631'},
+                            {'stats': {'participants_delta': 9}, 'timestamp': '2026-04-13T13:29:25.631'},
+                            {'stats': {'participants_delta': 7}, 'timestamp': '2026-04-14T13:29:25.631'},
+                            {'stats': {'participants_delta': 0}, 'timestamp': '2026-04-15T13:29:25.631'},
+                            {'stats': {'participants_delta': -1}, 'timestamp': '2026-04-16T13:29:25.631'},
+                            {'stats': {'participants_delta': -1}, 'timestamp': '2026-04-17T13:29:25.631'},
+                            {'stats': {'participants_delta': 11}, 'timestamp': '2026-04-18T13:29:25.631'},
+                            {'stats': {'participants_delta': 1}, 'timestamp': '2026-04-19T13:29:25.631'},
+                            {'stats': {'participants_delta': 1}, 'timestamp': '2026-04-20T13:29:25.631'},
+                            {'stats': {'participants_delta': -1}, 'timestamp': '2026-04-21T13:29:25.631'},
+                            {'stats': {'participants_delta': 12}, 'timestamp': '2026-04-22T13:29:25.631'},
+                            {'stats': {'participants_delta': 10}, 'timestamp': '2026-04-23T13:29:25.631'},
+                            {'stats': {'participants_delta': 10}, 'timestamp': '2026-04-24T13:29:25.631'},
+                            {'stats': {'participants_delta': 1}, 'timestamp': '2026-04-25T13:29:25.631'},
+                            {'stats': {'participants_delta': 13}, 'timestamp': '2026-04-26T13:29:25.631'},
+                            {'stats': {'participants_delta': 7}, 'timestamp': '2026-04-27T13:29:25.631'},
+                            {'stats': {'participants_delta': 6}, 'timestamp': '2026-04-28T13:29:25.631'},
+                            {'stats': {'participants_delta': 4}, 'timestamp': '2026-04-29T13:29:25.631'},
+                            {'stats': {'participants_delta': 10}, 'timestamp': '2026-04-30T13:29:25.631'},
+                            {'stats': {'participants_delta': 3}, 'timestamp': '2026-05-01T13:29:25.631'},
+                            {'stats': {'participants_delta': 12}, 'timestamp': '2026-05-02T13:29:25.631'},
+                            {'stats': {'participants_delta': 14}, 'timestamp': '2026-05-03T13:29:25.631'},
+                            {'stats': {'participants_delta': 9}, 'timestamp': '2026-05-04T13:29:25.631'},
+                            {'stats': {'participants_delta': 6}, 'timestamp': '2026-05-05T13:29:25.631'},
+                            {'stats': {'participants_delta': 14}, 'timestamp': '2026-05-06T13:29:25.631'},
+                            {'stats': {'participants_delta': 6}, 'timestamp': '2026-05-07T13:29:25.631'},
+                            {'stats': {'participants_delta': 13}, 'timestamp': '2026-05-08T13:29:25.631'},
+                            {'stats': {'participants_delta': 11}, 'timestamp': '2026-05-09T13:29:25.631'},
+                            {'stats': {'participants_delta': 2}, 'timestamp': '2026-05-10T13:29:25.631'},
+                            {'stats': {'participants_delta': 6}, 'timestamp': '2026-05-11T13:29:25.631'},
+                            {'stats': {'participants_delta': 5}, 'timestamp': '2026-05-12T13:29:25.631'},
+                            {'stats': {'participants_delta': -1}, 'timestamp': '2026-05-13T13:29:25.631'},
+                            {'stats': {'participants_delta': 5}, 'timestamp': '2026-05-14T13:29:25.631'},
+                            {'stats': {'participants_delta': 8}, 'timestamp': '2026-05-15T13:29:25.631'},
+                            {'stats': {'participants_delta': 5}, 'timestamp': '2026-05-16T13:29:25.631'},
+                            {'stats': {'participants_delta': 6}, 'timestamp': '2026-05-17T13:29:25.631'},
+                            {'stats': {'participants_delta': 3}, 'timestamp': '2026-05-18T13:29:25.631'},
+                            {'stats': {'participants_delta': 2}, 'timestamp': '2026-05-19T13:29:25.631'},
+                            {'stats': {'participants_delta': 12}, 'timestamp': '2026-05-20T13:29:25.631'},
+                            {'stats': {'participants_delta': 12}, 'timestamp': '2026-05-21T13:29:25.631'},
+                            {'stats': {'participants_delta': 15}, 'timestamp': '2026-05-22T13:29:25.631'},
+                            {'stats': {'participants_delta': 5}, 'timestamp': '2026-05-23T13:29:25.631'},
+                            {'stats': {'participants_delta': 0}, 'timestamp': '2026-05-24T13:29:25.631'},
+                            {'stats': {'participants_delta': 15}, 'timestamp': '2026-05-25T13:29:25.631'},
+                            {'stats': {'participants_delta': 11}, 'timestamp': '2026-05-26T13:29:25.631'},
+                            {'stats': {'participants_delta': 15}, 'timestamp': '2026-05-27T13:29:25.631'},
+                            {'stats': {'participants_delta': 3}, 'timestamp': '2026-05-28T13:29:25.631'},
+                            {'stats': {'participants_delta': 10}, 'timestamp': '2026-05-29T13:29:25.631'},
+                            {'stats': {'participants_delta': 8}, 'timestamp': '2026-05-30T13:29:25.631'},
+                            {'stats': {'participants_delta': 7}, 'timestamp': '2026-05-31T13:29:25.631'},
+                            {'stats': {'participants_delta': 7}, 'timestamp': '2026-06-01T13:29:25.631'},
+                            {'stats': {'participants_delta': 5}, 'timestamp': '2026-06-02T13:29:25.631'}]
+                    );
+
                     setDailyData(daily);
                     setHourlyData(hourly);
                 }
@@ -124,144 +273,336 @@ const DetailInfo = () => {
 
     }, []);
 
-    const stats = groupData?.abs_stats;
     useEffect(() => {
-        if (!dailyData || !dailyData.length || !stats) return;
+        if (!dailyData || !dailyData.length || !stats || !subscribersDivRef.current) return;
 
         const labels = [];
-
         const data = [];
-        const currentParticipants = stats.participants_count;
+
+        let cumulative = stats.participants_count;
+        data.unshift(cumulative);
+        labels.unshift((new Date()).toLocaleDateString('ru-RU'))
+
         for (let i = dailyData.length - 1; i >= 0; i--) {
             const item = dailyData[i];
-
             const date = new Date(item.timestamp);
+            date.setDate(date.getDate() - 1);
             labels.unshift(date.toLocaleDateString('ru-RU'));
 
-            if (i === dailyData.length - 1) {
-                data.unshift(currentParticipants);
-            } else {
-                const nextItem = dailyData[i + 1];
-                const delta = nextItem.stats[0]?.participants_delta || 0;
-                const prevParticipants = data[0] - delta;
-                data.unshift(prevParticipants);
-            }
+            const delta = item.stats?.participants_delta || 0;
+            cumulative -= delta;
+            data.unshift(cumulative);
         }
 
-        if (chartInstanceRef.current) {
-            chartInstanceRef.current.destroy();
-        }
+        if (subscribersChartRef.current) subscribersChartRef.current.dispose();
 
-        const ctx = chartRef.current.getContext('2d');
-        chartInstanceRef.current = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Подписчики',
-                    data: data,
-                    borderColor: '#2c5aa0',
-                    backgroundColor: 'rgba(44, 90, 160, 0.1)',
-                    fill: true,
-                    tension: 0.3,
-                    pointRadius: 4,
-                    pointBackgroundColor: '#2c5aa0'
-                }]
+        const dataMin = Math.min(...data);
+        const dataMax = Math.max(...data);
+        const padding = Math.max((dataMax - dataMin) * 0.1, 1).toFixed(0);
+        const visiblePoints = 30;
+        const totalPoints = labels.length;
+
+        subscribersChartRef.current = echarts.init(subscribersDivRef.current);
+        subscribersChartRef.current.setOption({
+            tooltip: { trigger: 'axis' },
+            grid: { left: 60, right: 20, top: 10, bottom: 70 },
+            xAxis: {
+                type: 'category',
+                data: labels,
+                name: 'Дата',
+                nameLocation: 'center',
+                nameGap: 30,
+                nameTextStyle: { fontSize: 12, fontWeight: 500, color: '#666' },
+                axisLine: { lineStyle: { color: '#ddd' } },
+                axisLabel: { fontSize: 11 },
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: false,
-                        grid: {
-                            color: '#e9ecef'
-                        }
-                    },
-                    x: {
-                        grid: {
-                            display: false
-                        }
-                    }
-                }
-            }
+            yAxis: {
+                type: 'value',
+                scale: true,
+                min: dataMin - padding,
+                name: 'Подписчики',
+                nameLocation: 'center',
+                nameGap: 45,
+                nameTextStyle: { fontSize: 12, fontWeight: 500, color: '#666' },
+                splitLine: { lineStyle: { color: '#e9ecef' } },
+            },
+            series: [{
+                type: 'line',
+                data,
+                lineStyle: { color: '#2c5aa0', width: 2 },
+            }],
+            dataZoom: [
+                { type: 'inside', xAxisIndex: 0, zoomOnMouseWheel: true, moveOnMouseMove: true, startValue: Math.max(0, totalPoints - visiblePoints),
+                    endValue: totalPoints - 1,},
+                { type: 'slider', xAxisIndex: 0, bottom: 8, height: 12, startValue: Math.max(0, totalPoints - visiblePoints),
+                    endValue: totalPoints - 1, borderColor: '#ddd', fillerColor: 'rgba(44, 90, 160, 0.15)', handleStyle: { borderColor: '#2c5aa0' } },
+            ],
         });
 
+        return () => { if (subscribersChartRef.current) subscribersChartRef.current.dispose(); };
     }, [dailyData, stats]);
 
     useEffect(() => {
-        if (!hourlyData || !hourlyData.length) return;
+        if (!dailyData || !dailyData.length || !deltaDivRef.current) return;
 
-        const labels = hourlyData.map(item => {
-            const date = new Date(item.timestamp);
-            return date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+        const labels = [];
+        const deltas = [];
+        for (let i = 0; i < dailyData.length; i++) {
+            const item = dailyData[i];
+            labels.push(new Date(item.timestamp).toLocaleDateString('ru-RU'));
+            deltas.push(item.stats?.participants_delta ?? 0);
+        }
+        if (deltaChartRef.current) deltaChartRef.current.dispose();
+
+        const visiblePoints = 30;
+        const totalPoints = labels.length;
+        deltaChartRef.current = echarts.init(deltaDivRef.current);
+        deltaChartRef.current.setOption({
+            tooltip: { trigger: 'axis' },
+            grid: { left: 60, right: 20, top: 10, bottom: 70 },
+            xAxis: {
+                type: 'category',
+                data: labels,
+                name: 'Дата',
+                nameLocation: 'center',
+                nameGap: 30,
+                nameTextStyle: { fontSize: 12, fontWeight: 500, color: '#666' },
+                axisLine: { lineStyle: { color: '#ddd' } },
+                axisLabel: { fontSize: 11 },
+            },
+            yAxis: {
+                type: 'value',
+                name: 'Прирост',
+                nameLocation: 'center',
+                nameGap: 45,
+                nameTextStyle: { fontSize: 12, fontWeight: 500, color: '#666' },
+                splitLine: { lineStyle: { color: '#e9ecef' } },
+            },
+            series: [{
+                type: 'line',
+                data: deltas,
+                itemStyle: {
+                    color: {
+                        type: 'linear',
+                        x: 0, y: 0, x2: 0, y2: 1,
+                        colorStops: [
+                            { offset: 0, color: '#27ae60' },
+                            { offset: 1, color: '#2ecc71' },
+                        ],
+                    },
+                    borderRadius: [2, 2, 0, 0],
+                },
+            }],
+            dataZoom: [
+                {
+                    type: 'inside',
+                    xAxisIndex: 0,
+                    startValue: Math.max(0, totalPoints - visiblePoints),
+                    endValue: totalPoints - 1,
+                },
+                {
+                    type: 'slider',
+                    xAxisIndex: 0,
+                    bottom: 8,
+                    height: 12,
+                    startValue: Math.max(0, totalPoints - visiblePoints),
+                    endValue: totalPoints - 1,
+                    borderColor: '#ddd',
+                    fillerColor: 'rgba(39, 174, 96, 0.15)',
+                    handleStyle: { borderColor: '#27ae60' },
+                },
+
+            ],
         });
 
-        const likesData = hourlyData.map(item => item.stats[0]?.likes_count || 0);
-        const viewsData = hourlyData.map(item => item.stats[0]?.views_count || 0);
+        return () => { if (deltaChartRef.current) deltaChartRef.current.dispose(); };
+    }, [dailyData]);
 
-        if (activityChartInstanceRef.current) {
-            activityChartInstanceRef.current.destroy();
-        }
+    useEffect(() => {
+        const agg = groupData?.aggregated_post_data;
+        console.log(agg)
+        if (!agg || groupData?.status !== 'SUCCESS') return;
 
-        const ctx = activityChartRef.current.getContext('2d');
-        activityChartInstanceRef.current = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [
-                    {
-                        label: 'Лайки',
-                        data: likesData,
-                        borderColor: '#e74c3c',
-                        backgroundColor: 'rgba(231, 76, 60, 0.1)',
-                        fill: true,
-                        tension: 0.3,
-                        pointRadius: 3,
-                        pointBackgroundColor: '#e74c3c'
-                    },
-                    {
-                        label: 'Просмотры',
-                        data: viewsData,
-                        borderColor: '#3498db',
-                        backgroundColor: 'rgba(52, 152, 219, 0.1)',
-                        fill: true,
-                        tension: 0.3,
-                        pointRadius: 3,
-                        pointBackgroundColor: '#3498db'
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'top',
+        const datasets = [
+            { key: 'aggregated_likes_counts', label: 'По лайкам', color: '#e74c3c' },
+            { key: 'aggregated_reposts_counts', label: 'По репостам', color: '#3498db' },
+            { key: 'aggregated_comments_counts', label: 'По комментариям', color: '#27ae60' },
+        ];
+
+        histChartInstances.current.forEach(inst => { if (inst) inst.dispose(); });
+        histChartInstances.current = [];
+
+        datasets.forEach((ds, idx) => {
+            const dataMap = agg[ds.key];
+            if (!dataMap || !Object.keys(dataMap).length || !histContainerRefs[idx].current) return;
+
+            const entries = Object.entries(dataMap)
+                .map(([k, v]) => ({k: parseInt(k), count: v.count, post_id: v.post_id}))
+                .sort((a, b) => a.k - b.k);
+            if (!entries.length) return;
+
+            let prev = 0;
+            const sourceData = entries.map(e => {
+                const row = { range: `${prev}–${e.k}`, count: e.count, post_id: e.post_id };
+                prev = e.k;
+                return row;
+            });
+
+            const chart = echarts.init(histContainerRefs[idx].current);
+            histChartInstances.current[idx] = chart;
+
+            chart.setOption({
+                tooltip: {
+                    trigger: 'axis',
+                    formatter: (params) => {
+                        const p = params[0];
+                        return `${p.axisValue}<br/>${p.seriesName}: ${p.value} постов`;
                     }
                 },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: {
-                            color: '#e9ecef'
-                        }
+                grid: {
+                    left: 80,
+                    right: 20,
+                    top: 10,
+                    bottom: 90,
+                },
+                xAxis: {
+                    type: 'category',
+                    data: sourceData.map(d => d.range),
+                    name: 'Диапазон',
+                    nameLocation: 'center',
+                    nameGap: 35,
+                    nameTextStyle: { fontSize: 12, fontWeight: 500, color: '#666' },
+                    axisLabel: { rotate: 45, fontSize: 11 },
+                    axisLine: { lineStyle: { color: '#ddd' } },
+                },
+                yAxis: {
+                    type: histScales[idx],
+                    min: histScales[idx] === 'log' ? 1 : 0,
+                    name: 'Количество постов',
+                    nameLocation: 'center',
+                    nameGap: 45,
+                    nameTextStyle: { fontSize: 12, fontWeight: 500, color: '#666' },
+                    splitLine: { lineStyle: { color: '#e9ecef' } },
+                },
+                series: [{
+                    type: 'bar',
+                    name: ds.label,
+                    data: sourceData.map(d => d.count),
+                    itemStyle: { color: ds.color, borderRadius: [0, 0, 0, 0] },
+                    barMaxWidth: 60,
+                }],
+                dataZoom: [
+                    {
+                        type: 'inside',
+                        xAxisIndex: 0,
+                        zoomOnMouseWheel: true,
+                        moveOnMouseMove: true,
                     },
-                    x: {
-                        grid: {
-                            display: false
-                        }
-                    }
-                }
-            }
+                    {
+                        type: 'slider',
+                        xAxisIndex: 0,
+                        bottom: 8,
+                        height: 12,
+                        borderColor: '#ddd',
+                        fillerColor: 'rgba(44, 90, 160, 0.15)',
+                        handleStyle: { borderColor: '#2c5aa0' },
+                    },
+                ],
+            });
+
+            chart.on('click',  (params) => {
+                const post_id = sourceData[params.dataIndex]?.post_id;
+                const range = sourceData[params.dataIndex]?.range;
+                if (post_id) handleBarClick(post_id, range).catch(console.error);
+                // setHistClickInfo({
+                //     label: ds.label,
+                //     range: params.name,
+                //     count: params.value,
+                //     post_id,
+                // });
+            });
         });
 
-    }, [hourlyData]);
+        return () => {
+            histChartInstances.current.forEach(inst => { if (inst) inst.dispose(); });
+            histChartInstances.current = [];
+        };
+    }, [groupData, histScales]);
+
+    // активность по часам - убрать
+    // useEffect(() => {
+    //     if (!hourlyData || !hourlyData.length || !activityDivRef.current) return;
+    //
+    //     const labels = hourlyData.map(item => {
+    //         const date = new Date(item.timestamp);
+    //         return date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+    //     });
+    //
+    //     const likesData = hourlyData.map(item => item.stats[0]?.likes_count || 0);
+    //     const viewsData = hourlyData.map(item => item.stats[0]?.views_count || 0);
+    //
+    //     if (activityChartRef.current) activityChartRef.current.dispose();
+    //     const visiblePoints = 30;
+    //     const totalPoints = labels.length;
+    //
+    //     activityChartRef.current = echarts.init(activityDivRef.current);
+    //     activityChartRef.current.setOption({
+    //         tooltip: { trigger: 'axis' },
+    //         legend: { data: ['Лайки', 'Просмотры'], top: 0 },
+    //         grid: { left: 60, right: 20, top: 35, bottom: 40 },
+    //         xAxis: {
+    //             type: 'category',
+    //             data: labels,
+    //             name: 'Время',
+    //             nameLocation: 'center',
+    //             nameGap: 30,
+    //             nameTextStyle: { fontSize: 12, fontWeight: 500, color: '#666' },
+    //             axisLine: { lineStyle: { color: '#ddd' } },
+    //             axisLabel: { fontSize: 11 },
+    //         },
+    //         yAxis: {
+    //             type: 'value',
+    //             min: 0,
+    //             name: 'Количество',
+    //             nameLocation: 'center',
+    //             nameGap: 45,
+    //             nameTextStyle: { fontSize: 12, fontWeight: 500, color: '#666' },
+    //             splitLine: { lineStyle: { color: '#e9ecef' } },
+    //         },
+    //         series: [
+    //             {
+    //                 name: 'Лайки',
+    //                 type: 'line',
+    //                 data: likesData,
+    //                 smooth: true,
+    //                 symbol: 'circle',
+    //                 symbolSize: 3,
+    //                 lineStyle: { color: '#e74c3c', width: 2 },
+    //                 areaStyle: { color: 'rgba(231, 76, 60, 0.1)' },
+    //                 itemStyle: { color: '#e74c3c' },
+    //             },
+    //             {
+    //                 name: 'Просмотры',
+    //                 type: 'line',
+    //                 data: viewsData,
+    //                 smooth: true,
+    //                 symbol: 'circle',
+    //                 symbolSize: 3,
+    //                 lineStyle: { color: '#3498db', width: 2 },
+    //                 areaStyle: { color: 'rgba(52, 152, 219, 0.1)' },
+    //                 itemStyle: { color: '#3498db' },
+    //             },
+    //         ],
+    //         dataZoom: [
+    //             { type: 'inside', xAxisIndex: 0, zoomOnMouseWheel: true, moveOnMouseMove: true, startValue: Math.max(0, totalPoints - visiblePoints),
+    //                 endValue: totalPoints - 1, },
+    //             { type: 'slider', xAxisIndex: 0, bottom: 8, height: 12, startValue: Math.max(0, totalPoints - visiblePoints),
+    //                 endValue: totalPoints - 1, borderColor: '#ddd', fillerColor: 'rgba(52, 152, 219, 0.15)', handleStyle: { borderColor: '#3498db' } },
+    //         ],
+    //     });
+    //
+    //     return () => { if (activityChartRef.current) activityChartRef.current.dispose(); };
+    // }, [hourlyData]);
 
     const handleDelete = async () => {
         let token = localStorage.getItem("access_token");
@@ -420,6 +761,76 @@ const DetailInfo = () => {
                     </div>
                 </section>
             )}
+            {groupData?.aggregated_post_data && (
+                <section className={styles.groupCharts}>
+                    <h2>Распределение постов</h2>
+                    <div className={styles.histogramsGrid}>
+                        {groupData.aggregated_post_data.aggregated_likes_counts && Object.keys(groupData.aggregated_post_data.aggregated_likes_counts).length > 0 && (
+                            <div className={styles.chartCard}>
+                                <div className={styles.chartCardHeader}>
+                                    <h3>По лайкам</h3>
+                                    <div className={styles.scaleGroup}>
+                                        <span className={styles.scaleLabel}>тип шкалы</span>
+                                        <div
+                                            className={`${styles.scaleSwitch} ${histScales[0] === 'value' ? styles.scaleValue : styles.scaleLog}`}
+                                            onClick={() => setHistScales(prev => { const n = [...prev]; n[0] = n[0] === 'log' ? 'value' : 'log'; return n; })}
+                                        >
+                                            <span className={styles.scaleOption}>Лог</span>
+                                            <span className={styles.scaleOption}>Лин</span>
+                                            <span className={styles.scaleActive}></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className={styles.chartContainer}>
+                                    <div ref={histContainerRefs[0]} style={{width:'100%',height:'100%'}}></div>
+                                </div>
+                            </div>
+                        )}
+                        {groupData.aggregated_post_data.aggregated_reposts_counts && Object.keys(groupData.aggregated_post_data.aggregated_reposts_counts).length > 0 && (
+                            <div className={styles.chartCard}>
+                                <div className={styles.chartCardHeader}>
+                                    <h3>По репостам</h3>
+                                    <div className={styles.scaleGroup}>
+                                        <span className={styles.scaleLabel}>тип шкалы</span>
+                                        <div
+                                            className={`${styles.scaleSwitch} ${histScales[1] === 'value' ? styles.scaleValue : styles.scaleLog}`}
+                                            onClick={() => setHistScales(prev => { const n = [...prev]; n[1] = n[1] === 'log' ? 'value' : 'log'; return n; })}
+                                        >
+                                            <span className={styles.scaleOption}>Лог</span>
+                                            <span className={styles.scaleOption}>Лин</span>
+                                            <span className={styles.scaleActive}></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className={styles.chartContainer}>
+                                    <div ref={histContainerRefs[1]} style={{width:'100%',height:'100%'}}></div>
+                                </div>
+                            </div>
+                        )}
+                        {groupData.aggregated_post_data.aggregated_comments_counts && Object.keys(groupData.aggregated_post_data.aggregated_comments_counts).length > 0 && (
+                            <div className={styles.chartCard}>
+                                <div className={styles.chartCardHeader}>
+                                    <h3>По комментариям</h3>
+                                    <div className={styles.scaleGroup}>
+                                        <span className={styles.scaleLabel}>тип шкалы</span>
+                                        <div
+                                            className={`${styles.scaleSwitch} ${histScales[2] === 'value' ? styles.scaleValue : styles.scaleLog}`}
+                                            onClick={() => setHistScales(prev => { const n = [...prev]; n[2] = n[2] === 'log' ? 'value' : 'log'; return n; })}
+                                        >
+                                            <span className={styles.scaleOption}>Лог</span>
+                                            <span className={styles.scaleOption}>Лин</span>
+                                            <span className={styles.scaleActive}></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className={styles.chartContainer}>
+                                    <div ref={histContainerRefs[2]} style={{width:'100%',height:'100%'}}></div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </section>
+            )}
 
             {groupData.status === 'SUCCESS' && (
                 <>
@@ -431,22 +842,32 @@ const DetailInfo = () => {
                                 <h3>Рост подписчиков</h3>
                                 {dailyData && dailyData.length ? (
                                     <div className={styles.chartContainer}>
-                                        <canvas ref={chartRef}></canvas>
+                                        <div ref={subscribersDivRef} style={{width:'100%',height:'100%'}}></div>
                                     </div>
                                 ) : (
                                     <div className={styles.noData}>Нет данных для графика</div>
                                 )}
                             </div>
                             <div className={styles.chartCard}>
-                                <h3>Активность по часам (лайки и просмотры)</h3>
-                                {hourlyData && hourlyData.length ? (
+                                <h3>Прирост подписчиков (по дням)</h3>
+                                {dailyData && dailyData.length ? (
                                     <div className={styles.chartContainer}>
-                                        <canvas ref={activityChartRef}></canvas>
+                                        <div ref={deltaDivRef} style={{width:'100%',height:'100%'}}></div>
                                     </div>
                                 ) : (
                                     <div className={styles.noData}>Нет данных для графика</div>
                                 )}
                             </div>
+                            {/*<div className={styles.chartCard}>*/}
+                            {/*    <h3>Активность по часам (лайки и просмотры)</h3>*/}
+                            {/*    {hourlyData && hourlyData.length ? (*/}
+                            {/*        <div className={styles.chartContainer}>*/}
+                            {/*            <div ref={activityDivRef} style={{width:'100%',height:'100%'}}></div>*/}
+                            {/*        </div>*/}
+                            {/*    ) : (*/}
+                            {/*        <div className={styles.noData}>Нет данных для графика</div>*/}
+                            {/*    )}*/}
+                            {/*</div>*/}
                         </div>
                     </section>
                 </>
@@ -470,6 +891,62 @@ const DetailInfo = () => {
                                 onClick={handleDelete}
                             >
                                 Да
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Модальное окно информации о посте */}
+            {histClickInfo && (
+                <div className={styles.modalOverlay}>
+                    <div className={styles.postModalContent}>
+                        <div className={styles.postModalGroupRow}>
+                            <a href={groupData.link || '#'} className={styles.postModalGroupLink} target="_blank" rel="noreferrer">
+                                {groupData.name || 'Название группы'}
+                            </a>
+                        </div>
+
+                        {histClickInfo.loading ? (
+                            <div className={styles.postModalLoader}>
+                                <div className={styles.spinner}></div>
+                                <span>Загрузка...</span>
+                            </div>
+                        ) : (
+                            <>
+                                <div className={styles.postModalText}>
+                                    {histClickInfo.text || 'Текст поста отсутствует'}
+                                </div>
+                                <div className={styles.postModalStats}>
+                                    <span>Лайки: {histClickInfo.likes ?? 0}</span>
+                                    <span className={styles.statSep}></span>
+                                    <span>Комментарии: {histClickInfo.comments ?? 0}</span>
+                                    <span className={styles.statSep}></span>
+                                    <span>Просмотры: {histClickInfo.views ?? 0}</span>
+                                    <span className={styles.statSep}></span>
+                                    <span>Репосты: {histClickInfo.reposts ?? 0}</span>
+                                </div>
+                                <div className={styles.postModalDateRow}>
+                                    <span className={styles.postModalDate}>
+                                        Дата публикации: {histClickInfo.pub_date || ''}
+                                    </span>
+                                </div>
+                            </>
+                        )}
+
+                        <div className={styles.modalActions}>
+                            <button
+                                className={`${styles.modalBtn} ${styles.modalBtnPrimary}`}
+                                onClick={() => window.open(`${groupData.link}${histClickInfo.link}`, '_blank')}
+                                disabled={histClickInfo.loading}
+                            >
+                                Открыть пост
+                            </button>
+                            <button
+                                className={`${styles.modalBtn} ${styles.modalBtnCancel}`}
+                                onClick={() => setHistClickInfo(null)}
+                            >
+                                Закрыть
                             </button>
                         </div>
                     </div>

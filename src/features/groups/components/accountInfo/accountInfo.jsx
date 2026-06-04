@@ -57,7 +57,7 @@ const AccountInfo = ({
             } else if (platform.alias === 'VK') {
                 user_id = localStorage.getItem("vk_id");
             }
-            const res = await fetch(`${BASE_URL}/${API_VERSION}/social-entities/group/check-access/`, {
+            const res = await fetch(`${BASE_URL}/${API_VERSION}/social-entities/groups/check-access/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
