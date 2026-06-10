@@ -97,7 +97,7 @@ const LoginForm = () => {
                 <div className={styles.formGroup}>
                     <label htmlFor="password">Пароль</label>
 
-                    <div className={styles.passwordWrapper}>   {/* ← вот этот div обязателен! */}
+                    <div className={styles.passwordWrapper}>
                         <input
                             type={showPassword ? "text" : "password"}
                             id="password"
@@ -107,6 +107,7 @@ const LoginForm = () => {
                             placeholder="Введите пароль"
                             required
                             className={`${authError ? styles.inputError : ""} ${styles.passwordInput}`}
+                            autoComplete="password"
                         />
                         <button
                             type="button"

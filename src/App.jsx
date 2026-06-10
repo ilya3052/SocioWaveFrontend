@@ -7,6 +7,7 @@ import Header from "./components/header/Header.jsx";
 import HeaderAdmin from "./components/headerAdmin/HeaderAdmin.jsx";
 import Footer from "./components/footer/Footer.jsx";
 import EmailActivation from "./features/auth/emailActivate/pages/EmailActivation.jsx";
+import ResetPassword from "./features/auth/resetPassword/pages/ResetPassword.jsx";
 import AddGroup from "./features/groups/pages/addGroup/addGroup.jsx";
 import AdminPage from "./features/admin/pages/AdminPage.jsx";
 
@@ -80,7 +81,8 @@ const App = () => {
 
     const isAuthPage =
         location.pathname === "/login" ||
-        location.pathname === "/registration";
+        location.pathname === "/registration" ||
+        location.pathname === "/reset";
 
     return (
         <div className="app">
@@ -92,6 +94,7 @@ const App = () => {
                     {/* Public */}
                     <Route path="/login" element={<LoginForm/>}/>
                     <Route path="/registration" element={<RegistrationForm/>}/>
+                    <Route path="/reset" element={<ResetPassword/>}/>
 
                     {/* Protected */}
                     <Route element={<ProtectedLayout/>}>
