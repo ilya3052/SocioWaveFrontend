@@ -35,22 +35,24 @@ const GroupCard = ({group, onDelete}) => {
             <div className={styles.groupInfo}>
                 <div className={styles.groupNamePlatform}>
                     <span className={styles.groupName}>{group.name}</span>
-                    <span className={`${styles.platformBadge} ${className}`}>
-            {label}
-          </span>
                 </div>
                 <div className={styles.groupDate}>
                     Подключена: {formatDate(group.added_at)}
                 </div>
             </div>
 
-            <button
-                className={styles.deleteGroupBtn}
-                onClick={() => onDelete(group.id)}
-                title="Удалить группу"
-            >
-                🗑
-            </button>
+            <div className={styles.groupActions}>
+                <span className={`${styles.platformBadge} ${className}`}>
+                    {label}
+                </span>
+                <button
+                    className={styles.deleteGroupBtn}
+                    onClick={() => onDelete(group.id)}
+                    title="Удалить группу"
+                >
+                    🗑
+                </button>
+            </div>
         </div>
     );
 };

@@ -59,6 +59,13 @@
     font-size: 0.9rem;
 }
 
+.groupActions {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    flex-shrink: 0;
+}
+
 .deleteGroupBtn {
     background: none;
     border: none;

@@ -156,8 +156,13 @@ const CompareGroups = () => {
                 </table>
             </div>
 
+            <div className={styles.saveBtnContainer}>
             <div className={styles.actions}>
-                <button className={styles.btnExport}>Экспорт в PDF</button>
+                <button className={styles.btnExport}>Сохранить в PDF</button>
+            </div>
+            <div className={styles.actions}>
+                <button className={styles.btnExport}>Сохранить в Excel</button>
+            </div>
             </div>
         </div>
     );

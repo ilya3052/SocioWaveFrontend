@@ -5,7 +5,20 @@ import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 const Pagination = ({ currentPage, totalPages, onPageChange }) => {
     if (totalPages <= 1) return null;
 
-    const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
+    const getPageNumbers = () => {
+        const pages = [];
+        const delta = 2;
+        const left = Math.max(2, currentPage - delta);
+        const right = Math.min(totalPages - 1, currentPage + delta);
+
+        pages.push(1);
+        if (left > 2) pages.push('...');
+        for (let i = left; i <= right; i++) pages.push(i);
+        if (right < totalPages - 1) pages.push('...');
+        if (totalPages > 1) pages.push(totalPages);
+
+        return pages;
+    };
 
     return (
         <div className={styles.pagination}>
@@ -18,15 +31,19 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
                 <FaChevronLeft />
             </button>
 
-            {pages.map(page => (
-                <button
-                    key={page}
-                    className={`${styles.pageBtn} ${page === currentPage ? styles.active : ''}`}
-                    onClick={() => onPageChange(page)}
-                >
-                    {page}
-                </button>
-            ))}
+            {getPageNumbers().map((page, idx) =>
+                page === '...' ? (
+                    <span key={`ellipsis-${idx}`} className={styles.ellipsis}>...</span>
+                ) : (
+                    <button
+                        key={page}
+                        className={`${styles.pageBtn} ${page === currentPage ? styles.active : ''}`}
+                        onClick={() => onPageChange(page)}
+                    >
+                        {page}
+                    </button>
+                )
+            )}
 
             <button
                 className={styles.arrowBtn}

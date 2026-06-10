@@ -10,9 +10,9 @@ const LoadStats = ({stats, groupStats}) => {
     const max_usage_acc_loading_percentage = total_groups_count === 0 ? 0 : (account_with_maximum_usage.count / total_groups_count) * 100;
 
     const getStyleByPercentage = (percentage) => {
-        if (percentage < 25) {
+        if (percentage < 33) {
             return styles.low;
-        } else if (percentage >= 25 && percentage <= 60) {
+        } else if (percentage >= 33 && percentage <= 66) {
             return styles.medium;
         } else {
             return styles.high;

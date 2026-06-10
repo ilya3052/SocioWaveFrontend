@@ -761,6 +761,18 @@ const DetailInfo = () => {
                     </div>
                 </section>
             )}
+
+            {groupData.status === 'SUCCESS' && (
+                <section className={styles.outlierAlertOk}>
+                    <div className={styles.outlierAlertOkBody}>
+                        <div className={styles.outlierAlertOkTitle}>Выделяющихся постов нет</div>
+                        <div className={styles.outlierAlertOkText}>
+                            Все посты в рамках нормы — сильных отклонений не обнаружено.
+                        </div>
+                    </div>
+                </section>
+            )}
+
             {groupData?.aggregated_post_data && (
                 <section className={styles.groupCharts}>
                     <h2>Распределение постов</h2>
