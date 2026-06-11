@@ -1,5 +1,6 @@
 import React from 'react';
 import styles from './platformSelector.module.css';
+import Loader from '../loader/Loader.jsx';
 
 const PlatformSelector = ({
                               platforms,
@@ -8,7 +9,7 @@ const PlatformSelector = ({
                               loading = false
                           }) => {
     if (loading) {
-        return <div className={styles.loading}>Загрузка платформ...</div>;
+        return <Loader text="Загрузка платформ..."/>;
     }
     if (!platforms || platforms.length === 0) {
         return <div>Платформы не найдены</div>;

@@ -4,6 +4,7 @@ import TopPosts from "../../components/topPosts/topPosts.jsx";
 import {useNavigate, useParams} from "react-router-dom";
 import {API_VERSION, BASE_URL, sendForDebug, verifyAndRefreshToken} from "../../../../utils/utils.js";
 import * as echarts from 'echarts';
+import Loader from "../../../../components/loader/Loader.jsx";
 
 const DetailInfo = () => {
     const {slug} = useParams();
@@ -421,7 +422,11 @@ const DetailInfo = () => {
             if (!dataMap || !Object.keys(dataMap).length || !histContainerRefs[idx].current) return;
 
             const entries = Object.entries(dataMap)
-                .map(([k, v]) => ({k: parseInt(k), count: v.count, post_id: v.post_id}))
+                .map(([k, v]) => ({
+                    k: parseInt(k),
+                    count: v.count,
+                    post_id: Array.isArray(v.post_ids) ? v.post_ids[Math.floor(Math.random() * v.post_ids.length)] : v.post_id
+                }))
                 .sort((a, b) => a.k - b.k);
             if (!entries.length) return;
 
@@ -602,7 +607,7 @@ const DetailInfo = () => {
     };
 
     if (!groupData) {
-        return <div>Загрузка...</div>;
+        return <Loader fullPage text="Загрузка информации о группе..."/>;
     }
 
     const addedAt = new Date(groupData.added_at);
@@ -892,8 +897,7 @@ const DetailInfo = () => {
 
                         {histClickInfo.loading ? (
                             <div className={styles.postModalLoader}>
-                                <div className={styles.spinner}></div>
-                                <span>Загрузка...</span>
+                                <Loader text="Загрузка поста..."/>
                             </div>
                         ) : (
                             <>

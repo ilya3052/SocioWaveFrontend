@@ -2,6 +2,7 @@ import {useEffect, useState} from "react";
 import {useNavigate, useSearchParams} from "react-router-dom";
 import styles from "./EmailActivation.module.css";
 import {API_VERSION, BASE_URL} from "../../../../utils/utils.js";
+import Loader from "../../../../components/loader/Loader.jsx";
 
 
 export default function EmailActivation() {
@@ -66,7 +67,7 @@ export default function EmailActivation() {
                 )}
 
                 {status === "loading" && (
-                    <div className={styles.loading}>Проверяем ссылку...</div>
+                    <Loader text="Проверяем ссылку..."/>
                 )}
 
                 {status === "success" && (

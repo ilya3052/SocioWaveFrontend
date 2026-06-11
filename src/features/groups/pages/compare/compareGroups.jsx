@@ -3,6 +3,7 @@ import styles from './compareGroups.module.css';
 import useCompareStore from "../../../../store/compareStore.js";
 import {useNavigate} from "react-router-dom";
 import {API_VERSION, BASE_URL, verifyAndRefreshToken} from "../../../../utils/utils.js";
+import toast from "react-hot-toast";
 
 
 const CompareGroups = () => {
@@ -37,7 +38,6 @@ const CompareGroups = () => {
     useEffect(() => {
         handleGroupsDataForCompare().then(
             res => {
-                console.log(res)
                 if ('error' in res) {
                     setError(res.error);
                     setGroupsData([]);
@@ -46,7 +46,7 @@ const CompareGroups = () => {
                 setGroupsData(res)
             }
         ).catch(
-            e => console.log(e)
+            () => toast.error('Ошибка при загрузке данных для сравнения')
         )
     }, [navigate, compareIds]);
 
@@ -55,7 +55,7 @@ const CompareGroups = () => {
     }
 
     if (!groupsData || groupsData.length === 0) {
-        return <div className={styles.container}>Загрузка или нет данных для сравнения...</div>
+        return <div className={styles.container}>Нет данных для сравнения</div>
     }
 
     const formatNumber = (num) => {

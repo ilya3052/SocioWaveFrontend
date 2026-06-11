@@ -2,6 +2,8 @@ import React, {useState} from 'react';
 import styles from './accountInfo.module.css';
 import {API_VERSION, BASE_URL, sendForDebug, verifyAndRefreshToken} from "../../../../utils/utils.js";
 import {useNavigate} from "react-router-dom";
+import toast from "react-hot-toast";
+import Loader from "../../../../components/loader/Loader.jsx";
 
 const AccountInfo = ({
                          platform,           // объект платформы { id, name, alias }
@@ -17,7 +19,7 @@ const AccountInfo = ({
     const navigate = useNavigate();
 
     if (loading) {
-        return <div className={styles.loading}>Загрузка платформ...</div>;
+        return <Loader text="Загрузка платформ..."/>;
     }
     if (!platform) return null;
     if (!serviceAccount) return null;
@@ -78,7 +80,7 @@ const AccountInfo = ({
             } else if (res.status === 400) {
                 const data = await res.json();
                 if (data.msg.includes('target user is not a member')) {
-                    alert('Добавьте сервисный аккаунт в группу и назначьте ему минимальные права администратора!')
+                    toast.error('Добавьте сервисный аккаунт в группу и назначьте ему минимальные права администратора!')
                 }
                 setGroupData({msg: data['msg'], access: data['status']})
             } else if (res.status === 406 || res.status === 404) {
@@ -94,9 +96,8 @@ const AccountInfo = ({
                 await sendForDebug(err);
             }
         } catch (error) {
-            console.error(error);
+            toast.error('Ошибка при проверке группы');
         }
-        console.log(groupLink);
     }
 
     return (

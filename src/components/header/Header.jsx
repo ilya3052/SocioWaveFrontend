@@ -2,6 +2,7 @@ import {Link, useNavigate} from "react-router-dom";
 import styles from "./header.module.css";
 import {useEffect, useRef, useState} from "react";
 import {logout} from "../../utils/utils.js";
+import toast from "react-hot-toast";
 
 const Header = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -16,10 +17,9 @@ const Header = () => {
         try {
             await logout(navigate);
         } catch (error) {
-            console.error("Ошибка при выходе из аккаунта:", error);
-            alert("Не удалось выйти из аккаунта. Попробуйте позже.");
+            toast.error("Не удалось выйти из аккаунта. Попробуйте позже.");
         } finally {
-            setIsOpen(false); // в любом случае закрываем меню
+            setIsOpen(false);
         }
     };
 

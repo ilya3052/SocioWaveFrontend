@@ -110,7 +110,7 @@ export const createVKAuthSuccessHandler = (navigate, refetchUser) => {
         const deviceId = payload.device_id;
 
         if (!code || !deviceId) {
-            console.warn('Нет code или device_id');
+            await sendForDebug('VK Auth: нет code или device_id');
             return;
         }
         try {
@@ -143,7 +143,7 @@ export const createVKAuthBindingHandler = (navigate, refetchUser) => {
         const code = payload.code;
         const deviceId = payload.device_id;
         if (!code || !deviceId) {
-            console.warn('Нет code или device_id');
+            await sendForDebug('VK Auth binding: нет code или device_id');
             return;
         }
         try {

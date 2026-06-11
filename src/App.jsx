@@ -18,6 +18,8 @@ import SummaryInfo from "./features/groups/pages/summaryInfo/summary.jsx";
 import DetailInfo from "./features/groups/pages/detailInfo/detailInfo.jsx";
 
 import {useMemo} from "react";
+import {Toaster} from "react-hot-toast";
+import Loader from "./components/loader/Loader.jsx";
 import CompareGroups from "./features/groups/pages/compare/compareGroups.jsx";
 import ReportsPage from "./features/reports/pages/reportsPage/ReportsPage.jsx";
 
@@ -33,7 +35,7 @@ const ProtectedLayout = () => {
     const {user, loading} = useAuthData();
 
     if (loading) {
-        return <div>Loading...</div>;
+        return <Loader fullPage text="Загрузка..."/>;
     }
 
     if (!user) {
@@ -67,7 +69,7 @@ const RoleRedirect = () => {
     const {user, loading, isStaff} = useAuthData();
 
     if (loading) {
-        return <div>Loading...</div>;
+        return <Loader fullPage text="Загрузка..."/>;
     }
 
     return isStaff
@@ -87,6 +89,8 @@ const App = () => {
     return (
         <div className="app">
             {!isAuthPage && !loading && (isStaff ? <HeaderAdmin/> : <Header/>)}
+
+            <Toaster position="top-right" toastOptions={{duration: 4000}}/>
 
             <main className="main">
                 <Routes>
@@ -121,6 +125,8 @@ const App = () => {
                         <Route path="/email/activate" element={<EmailActivation/>}/>
 
                     </Route>
+
+                    <Route path="*" element={<div className="not-found"><h1>404</h1><p>Страница не найдена</p></div>}/>
 
                 </Routes>
             </main>

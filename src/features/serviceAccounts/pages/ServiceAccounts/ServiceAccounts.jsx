@@ -3,6 +3,8 @@ import styles from './serviceAccounts.module.css';
 import AccountsSection from '../../components/AccountsSection/AccountsSection.jsx';
 import {Link, useNavigate} from "react-router-dom";
 import {API_VERSION, BASE_URL, sendForDebug, verifyAndRefreshToken} from "../../../../utils/utils.js";
+import ConfirmModal from "../../../../components/confirmModal/ConfirmModal.jsx";
+import toast from "react-hot-toast";
 
 const ServiceAccounts = () => {
     const [telegramAccounts, setTgAccounts] = useState([]);
@@ -10,6 +12,8 @@ const ServiceAccounts = () => {
     const [vkAccounts, setVkAccounts] = useState([]);
 
     const [totalGroupCount, setTotalGroupCount] = useState(0);
+
+    const [deleteTarget, setDeleteTarget] = useState(null);
 
     const navigate = useNavigate();
 
@@ -24,23 +28,28 @@ const ServiceAccounts = () => {
             });
             return res.status === 204;
         } catch (e) {
-            console.log(e);
             await sendForDebug(e);
             return false;
         }
     }
 
     const handleDeleteAccount = async (accountId) => {
+        setDeleteTarget(accountId);
+    }
+
+    const confirmDelete = async () => {
         if (!(await verifyAndRefreshToken())) {
             navigate("/login");
             return;
         }
         const token = localStorage.getItem("access_token");
-        if (!(await deleteServiceAccount(accountId, token))) {
-            alert('Произошла ошибка при удалении сервисного аккаунта');
+        if (!(await deleteServiceAccount(deleteTarget, token))) {
+            toast.error('Произошла ошибка при удалении сервисного аккаунта');
+            setDeleteTarget(null);
             return;
         }
-        window.location.reload();
+        toast.success('Сервисный аккаунт удалён');
+        setDeleteTarget(null);
     }
 
     const handleActivateAccount = async (accountId) => {
@@ -50,22 +59,20 @@ const ServiceAccounts = () => {
         }
         const token = localStorage.getItem("access_token");
 
-        await fetch(`${BASE_URL}/${API_VERSION}/service-accounts/activate/${accountId}`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-        })
-            .then(async res => {
-                await navigator.clipboard.writeText(
-                    (await res.json()).token
-                );
-                alert('Одноразовый токен для активации аккаунта скопирован в буфер обмена. Активируйте аккаунт с помощью специальной консольной утилиты');
-            })
-            .catch(e => {
-                console.log(e);
+        try {
+            const res = await fetch(`${BASE_URL}/${API_VERSION}/service-accounts/activate/${accountId}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
             });
+            const data = await res.json();
+            await navigator.clipboard.writeText(data.token);
+            toast.success('Одноразовый токен скопирован в буфер обмена');
+        } catch (e) {
+            toast.error('Ошибка при активации аккаунта');
+        }
     }
 
     useEffect(() => {
@@ -88,7 +95,6 @@ const ServiceAccounts = () => {
                     const data = await res.json();
                     const account_data = data.data;
                     const total_groups_count = data.total_group_count;
-                    console.log('total groups count', total_groups_count)
                     setTotalGroupCount(total_groups_count);
                     setVkAccounts(account_data.filter(item => {
                         if (item.platform.alias === "VK") {
@@ -107,7 +113,7 @@ const ServiceAccounts = () => {
                     }));
                 }
             } catch (e) {
-                console.log(e);
+                toast.error('Ошибка при загрузке сервисных аккаунтов');
             }
         };
         fetchAccounts();
@@ -145,6 +151,14 @@ const ServiceAccounts = () => {
                     sectionType="VK"
                 />
             </div>
+
+            <ConfirmModal
+                isOpen={!!deleteTarget}
+                onCancel={() => setDeleteTarget(null)}
+                onConfirm={confirmDelete}
+                title="Подтверждение удаления"
+                message="Вы уверены, что хотите удалить этот сервисный аккаунт?"
+            />
         </main>
     );
 };

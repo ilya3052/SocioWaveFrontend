@@ -4,6 +4,7 @@ import styles from './dataForm.module.css';
 import {API_VERSION, BASE_URL, verifyAndRefreshToken} from "../../../../utils/utils.js";
 import {useNavigate} from "react-router-dom";
 import {IMaskInput} from "react-imask";
+import toast from "react-hot-toast";
 
 
 const DataForm = ({platform}) => {
@@ -13,11 +14,26 @@ const DataForm = ({platform}) => {
     const [accountName, setAccountName] = useState('');
     const [phone, setPhone] = useState('');
     const [appID, setAppID] = useState('');
+    const [nameError, setNameError] = useState('');
+    const [isSaving, setIsSaving] = useState(false);
 
     const navigate = useNavigate();
 
 
     const sendAccountData = async () => {
+        if (!accountName.trim()) {
+            setNameError('Введите имя аккаунта');
+            return;
+        }
+        if (isTg && !phone.replace(/[+\-() ]/g, '')) {
+            toast.error('Введите номер телефона');
+            return;
+        }
+        if (!isTg && !appID.trim()) {
+            toast.error('Введите ID приложения');
+            return;
+        }
+        setIsSaving(true);
         try {
             if (!(await verifyAndRefreshToken())) {
                 navigate("/login");
@@ -50,10 +66,15 @@ const DataForm = ({platform}) => {
                 body: JSON.stringify(data)
             });
             if (res.status === 201) {
+                toast.success('Сервисный аккаунт добавлен');
                 navigate('/admin_panel/service_accounts')
+            } else {
+                toast.error('Ошибка при создании сервисного аккаунта');
             }
         } catch (err) {
-            console.log(err);
+            toast.error('Ошибка при создании сервисного аккаунта');
+        } finally {
+            setIsSaving(false);
         }
     }
 
@@ -69,8 +90,9 @@ const DataForm = ({platform}) => {
                     className={styles.formInput}
                     value={accountName}
                     placeholder="Введите имя аккаунта..."
-                    onChange={(e) => setAccountName(e.target.value)}
+                    onChange={(e) => { setAccountName(e.target.value); setNameError(''); }}
                 />
+                {nameError && <span className={styles.fieldError}>{nameError}</span>}
             </div>
             {isTg && (
                 <div className={styles.formGroup}>
@@ -107,8 +129,9 @@ const DataForm = ({platform}) => {
                 <button
                     className={styles.addBtn}
                     onClick={sendAccountData}
+                    disabled={isSaving}
                 >
-                    Добавить аккаунт
+                    {isSaving ? 'Сохранение...' : 'Добавить аккаунт'}
                 </button>
             </div>
         </section>

@@ -4,6 +4,7 @@ import ResultCard from "../../components/resultCard/resultCard.jsx";
 import SearchFilters from "../../components/searchFilters/searchFilters.jsx";
 import {useNavigate} from "react-router-dom";
 import {API_VERSION, BASE_URL, sendForDebug, verifyAndRefreshToken} from "../../../../utils/utils.js";
+import toast from "react-hot-toast";
 import useCompareStore from "../../../../store/compareStore.js";
 
 
@@ -48,7 +49,6 @@ const SummaryInfo = () => {
         });
         if (!res.ok) {
             const err = await res.text();
-            console.log(err);
             await sendForDebug(err);
             return
         }
@@ -59,7 +59,7 @@ const SummaryInfo = () => {
         fetchGroups().then(
             data => {setGroupsData(data)}
         ).catch(
-            e => console.log(e)
+            () => toast.error('Ошибка при загрузке групп')
         );
     }, [navigate]);
 
@@ -70,7 +70,7 @@ const SummaryInfo = () => {
         fetchGroups(filters.toString()).then(
             data => {setGroupsData(data)}
         ).catch(
-            e => console.log(e)
+            () => toast.error('Ошибка при поиске групп')
         );
     }
 

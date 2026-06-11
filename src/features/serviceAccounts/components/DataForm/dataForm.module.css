@@ -67,3 +67,10 @@
 .addBtn:hover {
     background: #218838;
 }
+
+.fieldError {
+    color: #e74c3c;
+    font-size: 13px;
+    margin-top: 4px;
+    display: block;
+}

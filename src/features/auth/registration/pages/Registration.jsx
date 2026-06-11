@@ -1,6 +1,7 @@
 import {useEffect, useState} from "react";
 import {useUser} from "../../../../context/UserContext.jsx";
 import {sendForDebug} from '../../../../utils/utils.js';
+import toast from 'react-hot-toast';
 import styles from "./registration.module.css";
 import {useNavigate} from "react-router-dom";
 import {createVKAuthSuccessHandler, initializeVKID} from "../../../../utils/OneTapVKAuth.jsx";
@@ -22,12 +23,9 @@ const RegistrationForm = () => {
     const navigate = useNavigate();
     const {refetchUser} = useUser();
 
-    const passwordError =
-        formData.password2 && formData.password !== formData.password2
-            ? "Пароли не совпадают"
-            : "";
-
     const [usernameError, setUsernameError] = useState("");
+    const [passwordError, setPasswordError] = useState("");
+    const [submitted, setSubmitted] = useState(false);
 
     useEffect(() => {
         return initializeTelegramWidget(createTGAuthHandler(navigate, refetchUser));
@@ -40,6 +38,17 @@ const RegistrationForm = () => {
     useEffect(() => {
         setUsernameError("");
     }, [formData.username]);
+
+    useEffect(() => {
+        if (!submitted) return;
+        if (formData.password && formData.password2 && formData.password !== formData.password2) {
+            setPasswordError("Пароли не совпадают");
+        } else if (!formData.password || !formData.password2) {
+            setPasswordError("Заполните оба поля пароля");
+        } else {
+            setPasswordError("");
+        }
+    }, [formData.password, formData.password2, submitted]);
 
     const handleChange = (e) => {
         const {name, value} = e.target;
@@ -61,7 +70,7 @@ const RegistrationForm = () => {
                 const result = await response.json();
                 localStorage.setItem("access_token", result.tokens.access);
                 localStorage.setItem("refresh_token", result.tokens.refresh);
-                // Синхронизируем пользователя
+                toast.success('Регистрация прошла успешно');
                 await refetchUser();
                 navigate("/profile");
             } else if (response.status === 400) {
@@ -71,18 +80,18 @@ const RegistrationForm = () => {
                 }
                 await sendForDebug(err);
             } else {
-                alert("Ошибка сервера");
+                toast.error("Ошибка сервера");
             }
         } catch (err) {
-            console.error(err);
-            alert("Не удалось подключиться к серверу");
+            toast.error("Не удалось подключиться к серверу");
         }
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (passwordError) return;
-        if (usernameError) return;
+        setSubmitted(true);
+        if (passwordError || usernameError) return;
+        if (!formData.password || !formData.password2) return;
 
         await sendRegistrationRequest(formData);
     };

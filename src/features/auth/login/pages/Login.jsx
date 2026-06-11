@@ -22,6 +22,7 @@ const LoginForm = () => {
 
     const [authError, setAuthError] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         return initializeTelegramWidget(createTGAuthHandler(navigate, refetchUser));
@@ -44,34 +45,41 @@ const LoginForm = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsLoading(true);
         await sendLoginRequest(formData);
+        setIsLoading(false);
     };
 
     const sendLoginRequest = async (data) => {
-        const result = await fetch(`${BASE_URL}/${API_VERSION}/auth/token/`, {
-            method: 'POST',
-            body: JSON.stringify(data),
-            headers: {'Content-Type': 'application/json'}
-        });
+        try {
+            const result = await fetch(`${BASE_URL}/${API_VERSION}/auth/token/`, {
+                method: 'POST',
+                body: JSON.stringify(data),
+                headers: {'Content-Type': 'application/json'}
+            });
 
-        if (result.status === 200) {
-            const data = await result.json();
+            if (result.status === 200) {
+                const responseData = await result.json();
 
-            localStorage.setItem('refresh_token', data.refresh);
-            localStorage.setItem('access_token', data.access);
+                localStorage.setItem('refresh_token', responseData.refresh);
+                localStorage.setItem('access_token', responseData.access);
 
-            // 🔥 КРИТИЧНО: синхронизируем пользователя
-            await refetchUser();
+                await refetchUser();
 
-            navigate('/', {replace: true});
+                navigate('/', {replace: true});
 
-        } else if (result.status === 400) {
-            const err = await result.text();
-            await sendForDebug(err);
+            } else if (result.status === 400) {
+                const err = await result.text();
+                await sendForDebug(err);
 
-        } else if (result.status === 401) {
+            } else if (result.status === 401) {
+                setAuthError(true);
+                await sendForDebug(await result.text());
+            }
+        } catch (err) {
+            await sendForDebug(`Login network error: ${err.message}`);
             setAuthError(true);
-            await sendForDebug(await result.text());
+            setIsLoading(false);
         }
     };
 
@@ -131,8 +139,8 @@ const LoginForm = () => {
                         Забыли пароль?
                     </Link>
                 </div>
-                <button type="submit" className={styles.loginBtn}>
-                    Войти
+                <button type="submit" className={styles.loginBtn} disabled={isLoading}>
+                    {isLoading ? 'Вход...' : 'Войти'}
                 </button>
                 <p className={styles.mutedText}>Или войдите через</p>
                 <div className={styles.socialAuth}>

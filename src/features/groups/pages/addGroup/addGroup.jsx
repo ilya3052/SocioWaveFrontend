@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 import styles from './addGroup.module.css';
 import {useNavigate} from "react-router-dom";
 import {API_VERSION, BASE_URL, sendForDebug, verifyAndRefreshToken} from "../../../../utils/utils.js";
+import toast from "react-hot-toast";
 import PlatformSelector from "../../../../components/platformSelector/platformSelector.jsx";
 import AccountInfo from "../../components/accountInfo/accountInfo.jsx";
 
@@ -32,7 +33,7 @@ const AddGroup = () => {
                 setPlatforms(data);
             }
         } catch (err) {
-            console.log(err);
+            toast.error('Ошибка при загрузке платформ');
         } finally {
             setLoadingPlatforms(false);
         }
@@ -64,7 +65,7 @@ const AddGroup = () => {
                     throw new Error(await getUserSocialDataResponse.text());
                 }
             } catch (err) {
-                console.log(err);
+                toast.error('Ошибка при загрузке данных пользователя');
             }
         }
         fetchUserData();
@@ -95,7 +96,7 @@ const AddGroup = () => {
                     throw new Error(await getServiceAccountResponse.text());
                 }
             } catch (err) {
-                console.log(err);
+                toast.error('Ошибка при загрузке сервисного аккаунта');
             } finally {
                 setLoadingServiceAccount(false)
             }
@@ -148,13 +149,15 @@ const AddGroup = () => {
                 })
             });
             if (res.ok) {
+                toast.success('Группа добавлена');
                 navigate("/profile?tab=groups");
             } else {
                 const data = await res.text();
+                toast.error(data);
                 await sendForDebug(data);
             }
         } catch (err) {
-            console.log(err);
+            toast.error('Ошибка при добавлении группы');
         }
 
     }
