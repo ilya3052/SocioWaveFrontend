@@ -198,6 +198,28 @@
     transform: translateY(0);
 }
 
+.emailSent {
+    margin-left: 12px;
+    padding: 0.45rem 1rem;
+    background-color: #16a34a;
+    color: white;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.emailError {
+    margin-left: 12px;
+    padding: 0.45rem 1rem;
+    background-color: #a94442;
+    color: white;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
 /* Форма смены пароля */
 .passwordForm {
     /* Можно добавить специфические стили при необходимости */

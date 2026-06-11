@@ -4,6 +4,7 @@ import {API_VERSION, BASE_URL, logout, sendForDebug, verifyAndRefreshToken} from
 import {useNavigate} from "react-router-dom";
 import {createVKAuthBindingHandler, initializeVKID} from "../../../../utils/OneTapVKAuth.jsx";
 import {useUser} from "../../../../context/UserContext.jsx";
+import toast from "react-hot-toast";
 
 
 const PersonalTab = () => {
@@ -53,6 +54,8 @@ const PersonalTab = () => {
     const [isPasswordLoading, setIsPasswordLoading] = useState(false);
 
     const [isEmailConfirmed, setIsEmailConfirmed] = useState(false);
+    const [emailSent, setEmailSent] = useState(false);
+    const [emailError, setEmailError] = useState(false);
 
     const navigate = useNavigate();
     const {user, refetchUser, loading: userLoading} = useUser();
@@ -96,8 +99,11 @@ const PersonalTab = () => {
 
         const fetchPasswordStatus = async () => {
             try {
+                if (!(await verifyAndRefreshToken())) {
+                    navigate("/login");
+                    return;
+                }
                 const token = localStorage.getItem("access_token");
-                if (!token) return;
 
                 const response = await fetch(`${BASE_URL}/${API_VERSION}/users/me/`, {
                     method: "GET",
@@ -118,7 +124,7 @@ const PersonalTab = () => {
                     }
                 }
             } catch (err) {
-                console.error("Failed to fetch password status:", err);
+                await sendForDebug("Failed to fetch password status: " + err.message);
             }
         };
 
@@ -165,11 +171,16 @@ const PersonalTab = () => {
                 break;
 
         }
+        if (!(await verifyAndRefreshToken())) {
+            navigate("/login");
+            return;
+        }
+        const token = localStorage.getItem("access_token");
         return await fetch(url, {
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${localStorage.getItem('access_token')}`,
+                "Authorization": `Bearer ${token}`,
             },
             body: JSON.stringify(dataToEdit),
         });
@@ -184,10 +195,10 @@ const PersonalTab = () => {
                 case 200:
                     setPersonalData(editData);
                     setIsEditing(false);
-                    window.location.reload();
+                    toast.success('Личные данные сохранены');
                     break;
                 case 400:
-                    alert((await res.text()));
+                    toast.error(await res.text());
                     break;
                 case 401: {
                     if (!(await verifyAndRefreshToken())) {
@@ -198,6 +209,7 @@ const PersonalTab = () => {
                     if (retryRes.status === 200) {
                         setPersonalData(editData);
                         setIsEditing(false);
+                        toast.success('Личные данные сохранены');
                     } else {
                         throw new Error(`Ошибка после обновления токена: ${retryRes.status}`);
                     }
@@ -205,9 +217,7 @@ const PersonalTab = () => {
                 }
             }
         } catch (err) {
-            console.error("Ошибка сохранения:", err);
-            alert("Не удалось сохранить изменения");
-            // можно откатить editData к personalData
+            toast.error("Не удалось сохранить изменения");
         }
     };
 
@@ -230,6 +240,7 @@ const PersonalTab = () => {
 
     const handlePasswordSubmit = async (e) => {
         e.preventDefault();
+        setIsPasswordLoading(true);
         try {
             const res = await sendEditedData(hasPassword ? "change-password" : "set-password");
             switch (res.status) {
@@ -239,7 +250,7 @@ const PersonalTab = () => {
                     localStorage.setItem("access_token", tokens.access);
                     localStorage.setItem("refresh_token", tokens.refresh);
                     setHasPassword(true);
-                    navigate(0);
+                    toast.success(hasPassword ? 'Пароль изменён' : 'Пароль установлен');
                     break;
                 }
                 case 400:
@@ -247,7 +258,9 @@ const PersonalTab = () => {
                     break;
             }
         } catch (err) {
-            console.error(err);
+            toast.error('Ошибка при смене пароля');
+        } finally {
+            setIsPasswordLoading(false);
         }
     }
 
@@ -258,6 +271,10 @@ const PersonalTab = () => {
 
     const handleTGBind = async () => {
         try {
+            if (!(await verifyAndRefreshToken())) {
+                navigate("/login");
+                return;
+            }
             const access_token = localStorage.getItem("access_token");
             const refresh_token = localStorage.getItem("refresh_token");
             const response = await fetch(`${BASE_URL}/${API_VERSION}/auth/tg/token/short/`, {
@@ -277,24 +294,22 @@ const PersonalTab = () => {
                 window.open(`https://t.me/socialpulsesandboxbot?start=${short_token}`, "_blank");
             } else if (response.status === 400) {
                 const err = await response.text();
-                alert(err);
+                toast.error(err);
                 await sendForDebug(err);
             }
         } catch (err) {
-            console.error(err);
+            toast.error('Ошибка при привязке Telegram');
             await sendForDebug(err);
         }
     }
 
     const handleUnbind = async (platform) => {
         try {
-            const token = localStorage.getItem("access_token");
-            if (!token) {
-                if (!(await verifyAndRefreshToken())) {
-                    navigate("/login");
-                    return;
-                }
+            if (!(await verifyAndRefreshToken())) {
+                navigate("/login");
+                return;
             }
+            const token = localStorage.getItem("access_token");
             let data;
             if (platform === 'TG') {
                 data = {
@@ -308,57 +323,55 @@ const PersonalTab = () => {
                     vk_link: null
                 }
             }
-            console.log(data);
-            const res = await fetch(`${BASE_URL}/${API_VERSION}/users/undind-social/?platform=${platform}`, {
+            const res = await fetch(`${BASE_URL}/${API_VERSION}/users/unbind-social/?platform=${platform}`, {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": `Bearer ${localStorage.getItem("access_token")}`,
+                    "Authorization": `Bearer ${token}`,
                 },
                 body: JSON.stringify(data)
             });
             if (res.ok) {
-                if (platform === 'tg') {
+                if (platform === 'TG') {
                     setPersonalData(prev => ({...prev, tg_id: '', tg_link: ''}));
                     localStorage.removeItem('tg_id');
-                } else if (platform === 'vk') {
+                } else if (platform === 'VK') {
                     setPersonalData(prev => ({...prev, vk_id: '', vk_link: ''}));
                     localStorage.removeItem('vk_id');
                     localStorage.removeItem('vk_access_token');
                     localStorage.removeItem('vk_refresh_token');
                     localStorage.removeItem('vk_id_token');
                 }
-                window.location.reload();
+                toast.success(`${platform} успешно отвязан`);
             } else {
                 const err = await res.text();
-                alert(err);
+                toast.error(err);
             }
         } catch (err) {
-            console.error(err);
+            toast.error('Ошибка при отвязке');
         }
     }
 
     const confirmEmail = async () => {
         try {
-            let token = localStorage.getItem("access_token");
-            if (!token) {
-                if (!(await verifyAndRefreshToken())) {
-                    navigate("/login");
-                    return;
-                }
+            if (!(await verifyAndRefreshToken())) {
+                navigate("/login");
                 return;
             }
-            localStorage.setItem("pending-email", personalData.email);
+            const token = localStorage.getItem("access_token");
+            localStorage.setItem("pending_email", personalData.email);
 
             const res = await fetch(`${BASE_URL}/${API_VERSION}/auth/email/send/`, {
                 method: "GET",
-                headers: {'Authorization': `Bearer ${localStorage.getItem("access_token")}`,}
+                headers: {'Authorization': `Bearer ${token}`,}
             });
             if (res.ok) {
-                console.log(res.json())
+                setEmailSent(true);
+            } else {
+                setEmailError(true);
             }
         } catch (err) {
-            console.log(err);
+            setEmailError(true);
         }
     }
 
@@ -456,13 +469,19 @@ const PersonalTab = () => {
                             <span className={styles.viewValue}>{personalData.email || "—"}</span>
                         )}
                         {!isEditing && personalData.email && !isEmailConfirmed && (
-                            <button
-                                onClick={confirmEmail}
-                                className={styles.confirmEmail}
-                                type="button"
-                            >
-                                Подтвердить почту
-                            </button>
+                            emailSent ? (
+                                <span className={styles.emailSent}>Письмо отправлено</span>
+                            ) : emailError ? (
+                                <span className={styles.emailError}>Ошибка отправки</span>
+                            ) : (
+                                <button
+                                    onClick={confirmEmail}
+                                    className={styles.confirmEmail}
+                                    type="button"
+                                >
+                                    Подтвердить почту
+                                </button>
+                            )
                         )}
                     </div>
                 </form>

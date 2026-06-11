@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
 import styles from './topPosts.module.css';
+import Loader from "../../../../components/loader/Loader.jsx";
 
 const PostCard = ({ label, post }) => {
     const [isExpanded, setIsExpanded] = useState(false);
@@ -51,7 +52,7 @@ const PostCard = ({ label, post }) => {
 
 const TopPosts = ({bestPosts}) => {
     if (!bestPosts) {
-        return <div>Загрузка...</div>;
+        return <Loader text="Загрузка лучших постов..."/>;
     }
     if ('error' in bestPosts) {
         return <div>{bestPosts.error}</div>;

@@ -6,6 +6,7 @@ import AccountsStats from "../components/accountStats/AccountStats.jsx";
 import LoadStats from "../components/loadStats/LoadStats.jsx";
 import {useNavigate} from "react-router-dom";
 import {API_VERSION, BASE_URL, verifyAndRefreshToken} from "../../../utils/utils.js";
+import toast from "react-hot-toast";
 
 const AdminPage = () => {
 
@@ -24,14 +25,11 @@ const AdminPage = () => {
         const abortController = new AbortController();
 
         const fetchSummaryInfo = async () => {
-            let token = localStorage.getItem("access_token");
-            if (!token) {
-                if (!(await verifyAndRefreshToken())) {
-                    navigate("/login");
-                    return;
-                }
+            if (!(await verifyAndRefreshToken())) {
+                navigate("/login");
                 return;
             }
+            const token = localStorage.getItem("access_token");
             try {
                 const res = await fetch(`${BASE_URL}/${API_VERSION}/admin/summary/`, {
                     method: 'GET',
@@ -43,14 +41,13 @@ const AdminPage = () => {
                 });
                 if (res.ok && isMounted) {
                     const data = await res.json();
-                    console.log(data);
                     setGroupStats(data.group_info);
                     setAccountStats(data.service_account_info);
                     setLoadStats(data.service_account_loading_info);
                 }
             } catch (err) {
                 if (err.name !== 'AbortError' && isMounted) {
-                    console.log(err);
+                    toast.error('Ошибка при загрузке сводной информации');
                 }
             }
         };
@@ -64,14 +61,11 @@ const AdminPage = () => {
     const saveReport = async (reportType) => {
         setIsSaving(true);
         try {
-            let token = localStorage.getItem("access_token");
-            if (!token) {
-                if (!(await verifyAndRefreshToken())) {
-                    navigate("/login");
-                    return;
-                }
+            if (!(await verifyAndRefreshToken())) {
+                navigate("/login");
+                return;
             }
-            token = localStorage.getItem("access_token");
+            const token = localStorage.getItem("access_token");
             const res = await fetch(`${BASE_URL}/${API_VERSION}/reports/admin/`, {
                 method: 'POST',
                 headers: {
@@ -82,9 +76,13 @@ const AdminPage = () => {
             });
             if (res.ok) {
                 const data = await res.json();
-                console.log(data);
                 window.open(data, '_blank');
+                toast.success('Отчёт сохранён');
+            } else {
+                toast.error('Ошибка при сохранении отчёта');
             }
+        } catch (err) {
+            toast.error('Ошибка при сохранении отчёта');
         } finally {
             setIsSaving(false);
         }

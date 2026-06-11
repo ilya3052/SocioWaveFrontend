@@ -82,3 +82,10 @@
 .requestDataBtn:hover {
     background: #1e3d6f;
 }
+
+.loading {
+    text-align: center;
+    padding: 2rem;
+    color: #666;
+    font-size: 1rem;
+}

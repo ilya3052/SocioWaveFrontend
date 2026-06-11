@@ -3,6 +3,8 @@ import {Link, useNavigate, useSearchParams} from "react-router-dom";
 import styles from "./resetPassword.module.css";
 import {API_VERSION, BASE_URL} from "../../../../utils/utils.js";
 import {useUser} from "../../../../context/UserContext.jsx";
+import toast from "react-hot-toast";
+import Loader from "../../../../components/loader/Loader.jsx";
 
 const ResetPassword = () => {
     const [searchParams] = useSearchParams();
@@ -16,6 +18,7 @@ const ResetPassword = () => {
     const [tokenValid, setTokenValid] = useState(false);
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
+    const [passwordError, setPasswordError] = useState("");
 
     useEffect(() => {
         if (!token) return;
@@ -42,10 +45,7 @@ const ResetPassword = () => {
     if (loading) {
         return (
             <div className={styles.resetContainer}>
-                <div className={styles.loaderCard}>
-                    <div className={styles.spinner}></div>
-                    <span>Подтверждение сброса пароля...</span>
-                </div>
+                <Loader text="Подтверждение сброса пароля..."/>
             </div>
         );
     }
@@ -53,19 +53,38 @@ const ResetPassword = () => {
     if (tokenValid) {
         const handleSetPassword = async (e) => {
             e.preventDefault();
-            const res = await fetch(`${BASE_URL}/${API_VERSION}/users/set-password/?token=${token}`, {
-                method: "PATCH",
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({new_password: newPassword, confirm_password: confirmPassword, token: token})
-            });
-            if (res.status === 200) {
-                const data = await res.json();
-                localStorage.setItem("access_token", data.access);
-                localStorage.setItem("refresh_token", data.refresh);
-                await refetchUser();
-                navigate("/", {replace: true});
+            if (!newPassword || !confirmPassword) {
+                setPasswordError('Заполните все поля');
+                return;
+            }
+            if (newPassword !== confirmPassword) {
+                setPasswordError('Пароли не совпадают');
+                return;
+            }
+            setPasswordError('');
+            setLoading(true);
+            try {
+                const res = await fetch(`${BASE_URL}/${API_VERSION}/users/set-password/?token=${token}`, {
+                    method: "PATCH",
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({new_password: newPassword, confirm_password: confirmPassword, token: token})
+                });
+                if (res.status === 200) {
+                    const data = await res.json();
+                    localStorage.setItem("access_token", data.access);
+                    localStorage.setItem("refresh_token", data.refresh);
+                    await refetchUser();
+                    navigate("/", {replace: true});
+                } else {
+                    const err = await res.text();
+                    toast.error(err);
+                }
+            } catch {
+                toast.error('Ошибка при смене пароля');
+            } finally {
+                setLoading(false);
             }
         };
 
@@ -98,8 +117,10 @@ const ResetPassword = () => {
                         />
                     </div>
 
-                    <button type="submit" className={styles.resetBtn}>
-                        Установить новый пароль
+                    {passwordError && <p className={styles.errorMessage}>{passwordError}</p>}
+
+                    <button type="submit" className={styles.resetBtn} disabled={loading}>
+                        {loading ? 'Сохранение...' : 'Установить новый пароль'}
                     </button>
                 </form>
             </div>
@@ -108,18 +129,25 @@ const ResetPassword = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const res = await fetch(`${BASE_URL}/${API_VERSION}/auth/password/send-email/`, {
-            method: "POST",
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({email: email})
-            })
-        if (res.status === 200) {
-            setSubmitted(true);
-            return
+        try {
+            const res = await fetch(`${BASE_URL}/${API_VERSION}/auth/password/send-email/`, {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({email: email})
+            });
+            if (res.status === 200) {
+                setSubmitted(true);
+                toast.success('Письмо с инструкциями отправлено на email');
+                return
+            }
+            toast.error('Ошибка при отправке письма');
+            setSubmitted(false);
+        } catch {
+            toast.error('Ошибка при отправке письма');
+            setSubmitted(false);
         }
-        setSubmitted(false)
     };
 
     return (

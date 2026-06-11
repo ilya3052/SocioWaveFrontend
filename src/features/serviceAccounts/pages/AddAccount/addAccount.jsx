@@ -4,7 +4,8 @@ import styles from './addAccount.module.css';
 import PlatformSelector from "../../../../components/platformSelector/platformSelector.jsx";
 import DataForm from "../../components/DataForm/dataForm.jsx";
 import {useNavigate} from "react-router-dom";
-import {API_VERSION, BASE_URL, verifyAndRefreshToken} from "../../../../utils/utils.js";
+import {API_VERSION, BASE_URL} from "../../../../utils/utils.js";
+import toast from "react-hot-toast";
 
 
 const AddAccountPage = () => {
@@ -18,14 +19,6 @@ const AddAccountPage = () => {
 
     const fetchPlatforms = async () => {
         try {
-            let token = localStorage.getItem("access_token");
-            if (!token) {
-                if (!(await verifyAndRefreshToken())) {
-                    navigate("/login");
-                    return;
-                }
-                return;
-            }
             const res = await fetch(`${BASE_URL}/${API_VERSION}/social-entities/platforms/`, {
                 method: 'GET',
                 headers: {
@@ -37,7 +30,7 @@ const AddAccountPage = () => {
                 setPlatforms(data);
             }
         } catch (err) {
-            console.log(err);
+            toast.error('Ошибка при загрузке платформ');
         } finally {
             setLoadingPlatforms(false);
         }

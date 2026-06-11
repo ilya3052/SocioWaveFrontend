@@ -4,6 +4,7 @@ import ResultCard from "../../components/resultCard/resultCard.jsx";
 import SearchFilters from "../../components/searchFilters/searchFilters.jsx";
 import {useNavigate} from "react-router-dom";
 import {API_VERSION, BASE_URL, sendForDebug, verifyAndRefreshToken} from "../../../../utils/utils.js";
+import toast from "react-hot-toast";
 import useCompareStore from "../../../../store/compareStore.js";
 
 
@@ -30,14 +31,11 @@ const SummaryInfo = () => {
     })
 
     const fetchGroups = async (filters) => {
-        let token = localStorage.getItem("access_token");
-        if (!token) {
-            if (!(await verifyAndRefreshToken())) {
-                navigate("/login");
-                return;
-            }
+        if (!(await verifyAndRefreshToken())) {
+            navigate("/login");
             return;
         }
+        const token = localStorage.getItem("access_token");
         let url = `${BASE_URL}/${API_VERSION}/social-entities/groups/?exclude_fields=users_ids,users,platform_id,service_account_id`;
         if (filters) {
             url = url.concat('&').concat(filters.toString())
@@ -51,7 +49,6 @@ const SummaryInfo = () => {
         });
         if (!res.ok) {
             const err = await res.text();
-            console.log(err);
             await sendForDebug(err);
             return
         }
@@ -62,7 +59,7 @@ const SummaryInfo = () => {
         fetchGroups().then(
             data => {setGroupsData(data)}
         ).catch(
-            e => console.log(e)
+            () => toast.error('Ошибка при загрузке групп')
         );
     }, [navigate]);
 
@@ -73,7 +70,7 @@ const SummaryInfo = () => {
         fetchGroups(filters.toString()).then(
             data => {setGroupsData(data)}
         ).catch(
-            e => console.log(e)
+            () => toast.error('Ошибка при поиске групп')
         );
     }
 

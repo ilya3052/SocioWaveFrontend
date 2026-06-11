@@ -3,6 +3,7 @@ import styles from './compareGroups.module.css';
 import useCompareStore from "../../../../store/compareStore.js";
 import {useNavigate} from "react-router-dom";
 import {API_VERSION, BASE_URL, verifyAndRefreshToken} from "../../../../utils/utils.js";
+import toast from "react-hot-toast";
 
 
 const CompareGroups = () => {
@@ -14,15 +15,11 @@ const CompareGroups = () => {
     const [error, setError] = useState('');
 
     const handleGroupsDataForCompare = async () => {
-        let token = localStorage.getItem("access_token");
-        if (!token) {
-            if (!(await verifyAndRefreshToken())) {
-                navigate("/login");
-                return [];
-            }
-            return [];
+        if (!(await verifyAndRefreshToken())) {
+            navigate("/login");
+            return;
         }
-        token = localStorage.getItem("access_token");
+        const token = localStorage.getItem("access_token");
         const groupIdsStr = compareIds.join(',')
         let url = `${BASE_URL}/${API_VERSION}/social-entities/groups/compare/`;
         if (groupIdsStr) {
@@ -41,7 +38,6 @@ const CompareGroups = () => {
     useEffect(() => {
         handleGroupsDataForCompare().then(
             res => {
-                console.log(res)
                 if ('error' in res) {
                     setError(res.error);
                     setGroupsData([]);
@@ -50,7 +46,7 @@ const CompareGroups = () => {
                 setGroupsData(res)
             }
         ).catch(
-            e => console.log(e)
+            () => toast.error('Ошибка при загрузке данных для сравнения')
         )
     }, [navigate, compareIds]);
 
@@ -59,7 +55,7 @@ const CompareGroups = () => {
     }
 
     if (!groupsData || groupsData.length === 0) {
-        return <div className={styles.container}>Загрузка или нет данных для сравнения...</div>
+        return <div className={styles.container}>Нет данных для сравнения</div>
     }
 
     const formatNumber = (num) => {

@@ -6,6 +6,7 @@ import ReportsGrid from "../../components/reportGrid/ReportGrid.jsx";
 import Pagination from "../../components/pagination/Pagination.jsx";
 import {API_VERSION, BASE_URL, verifyAndRefreshToken} from "../../../../utils/utils.js";
 import {useNavigate} from "react-router-dom";
+import toast from "react-hot-toast";
 
 const PAGE_SIZE = 5;
 
@@ -33,20 +34,15 @@ const ReportsPage = () => {
         if (format !== 'all') params.set('report_format', format);
         if (period !== 'all') params.set('period', period);
         if (searchQuery) params.set('search', searchQuery);
-        console.log(params.toString())
         return params.toString();
     };
 
     const fetchReports = async (page = 1) => {
-        let token = localStorage.getItem("access_token");
-        if (!token) {
-            if (!(await verifyAndRefreshToken())) {
-                navigate("/login");
-                return;
-            }
+        if (!(await verifyAndRefreshToken())) {
+            navigate("/login");
             return;
         }
-        token = localStorage.getItem("access_token");
+        const token = localStorage.getItem("access_token");
 
         const response = await fetch(`${BASE_URL}/${API_VERSION}/reports/?${buildQuery(page)}`, {
             method: "GET",
@@ -64,14 +60,12 @@ const ReportsPage = () => {
     useEffect(() => {
         fetchReports(currentPage)
             .then(
-                async res => {
+                res => {
                     setTotalCount(res.count);
                     setCurrentPageResults(res.results);
                 }
         ).catch(
-            async error => {
-                console.error(error);
-            }
+            () => toast.error('Ошибка при загрузке отчётов')
         );
     }, [currentPage, fetchTrigger, navigate]);
 

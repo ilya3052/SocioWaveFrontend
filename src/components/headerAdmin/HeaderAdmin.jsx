@@ -1,6 +1,7 @@
 import {Link, useNavigate} from "react-router-dom";
 import styles from "./headerAdmin.module.css";
 import {logout} from "../../utils/utils.js";
+import toast from "react-hot-toast";
 
 const HeaderAdmin = () => {
     const navigate = useNavigate();
@@ -9,8 +10,7 @@ const HeaderAdmin = () => {
         try {
             await logout(navigate);
         } catch (error) {
-            console.error("Ошибка при выходе из аккаунта:", error);
-            alert("Не удалось выйти из аккаунта. Попробуйте позже.");
+            toast.error("Не удалось выйти из аккаунта. Попробуйте позже.");
         }
     };
 

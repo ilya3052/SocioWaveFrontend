@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 import styles from './addGroup.module.css';
 import {useNavigate} from "react-router-dom";
 import {API_VERSION, BASE_URL, sendForDebug, verifyAndRefreshToken} from "../../../../utils/utils.js";
+import toast from "react-hot-toast";
 import PlatformSelector from "../../../../components/platformSelector/platformSelector.jsx";
 import AccountInfo from "../../components/accountInfo/accountInfo.jsx";
 
@@ -32,7 +33,7 @@ const AddGroup = () => {
                 setPlatforms(data);
             }
         } catch (err) {
-            console.log(err);
+            toast.error('Ошибка при загрузке платформ');
         } finally {
             setLoadingPlatforms(false);
         }
@@ -44,14 +45,11 @@ const AddGroup = () => {
 
     useEffect(() => {
         const fetchUserData = async () => {
-            let token = localStorage.getItem("access_token");
-            if (!token) {
-                if (!(await verifyAndRefreshToken())) {
-                    navigate("/login");
-                    return;
-                }
+            if (!(await verifyAndRefreshToken())) {
+                navigate("/login");
                 return;
             }
+            const token = localStorage.getItem("access_token");
             try {
                 const getUserSocialDataResponse = await fetch(`${BASE_URL}/${API_VERSION}/users/get-social/`, {
                     method: 'GET',
@@ -67,7 +65,7 @@ const AddGroup = () => {
                     throw new Error(await getUserSocialDataResponse.text());
                 }
             } catch (err) {
-                console.log(err);
+                toast.error('Ошибка при загрузке данных пользователя');
             }
         }
         fetchUserData();
@@ -76,14 +74,11 @@ const AddGroup = () => {
     useEffect(() => {
         if (!activePlatform) return;
         const fetchServiceAccounts = async () => {
-            let token = localStorage.getItem("access_token");
-            if (!token) {
-                if (!(await verifyAndRefreshToken())) {
-                    navigate("/login");
-                    return;
-                }
+            if (!(await verifyAndRefreshToken())) {
+                navigate("/login");
                 return;
             }
+            const token = localStorage.getItem("access_token");
             try {
                 const getServiceAccountResponse = await fetch(`${BASE_URL}/${API_VERSION}/service-accounts/${activePlatform}`, {
                     method: 'GET',
@@ -101,7 +96,7 @@ const AddGroup = () => {
                     throw new Error(await getServiceAccountResponse.text());
                 }
             } catch (err) {
-                console.log(err);
+                toast.error('Ошибка при загрузке сервисного аккаунта');
             } finally {
                 setLoadingServiceAccount(false)
             }
@@ -133,14 +128,11 @@ const AddGroup = () => {
         const platform = platforms.find(p => p.alias === activePlatform);
 
         try {
-            let token = localStorage.getItem("access_token");
-            if (!token) {
-                if (!(await verifyAndRefreshToken())) {
-                    navigate("/login");
-                    return;
-                }
+            if (!(await verifyAndRefreshToken())) {
+                navigate("/login");
                 return;
             }
+            const token = localStorage.getItem("access_token");
             const res = await fetch(`${BASE_URL}/${API_VERSION}/social-entities/groups/`, {
                 method: 'POST',
                 headers: {
@@ -157,13 +149,15 @@ const AddGroup = () => {
                 })
             });
             if (res.ok) {
+                toast.success('Группа добавлена');
                 navigate("/profile?tab=groups");
             } else {
                 const data = await res.text();
+                toast.error(data);
                 await sendForDebug(data);
             }
         } catch (err) {
-            console.log(err);
+            toast.error('Ошибка при добавлении группы');
         }
 
     }
