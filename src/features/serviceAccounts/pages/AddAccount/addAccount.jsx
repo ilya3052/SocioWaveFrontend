@@ -18,14 +18,6 @@ const AddAccountPage = () => {
 
     const fetchPlatforms = async () => {
         try {
-            let token = localStorage.getItem("access_token");
-            if (!token) {
-                if (!(await verifyAndRefreshToken())) {
-                    navigate("/login");
-                    return;
-                }
-                return;
-            }
             const res = await fetch(`${BASE_URL}/${API_VERSION}/social-entities/platforms/`, {
                 method: 'GET',
                 headers: {

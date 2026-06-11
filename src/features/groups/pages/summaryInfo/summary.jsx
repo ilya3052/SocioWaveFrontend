@@ -30,14 +30,11 @@ const SummaryInfo = () => {
     })
 
     const fetchGroups = async (filters) => {
-        let token = localStorage.getItem("access_token");
-        if (!token) {
-            if (!(await verifyAndRefreshToken())) {
-                navigate("/login");
-                return;
-            }
+        if (!(await verifyAndRefreshToken())) {
+            navigate("/login");
             return;
         }
+        const token = localStorage.getItem("access_token");
         let url = `${BASE_URL}/${API_VERSION}/social-entities/groups/?exclude_fields=users_ids,users,platform_id,service_account_id`;
         if (filters) {
             url = url.concat('&').concat(filters.toString())

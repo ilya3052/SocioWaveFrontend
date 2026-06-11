@@ -14,15 +14,11 @@ const CompareGroups = () => {
     const [error, setError] = useState('');
 
     const handleGroupsDataForCompare = async () => {
-        let token = localStorage.getItem("access_token");
-        if (!token) {
-            if (!(await verifyAndRefreshToken())) {
-                navigate("/login");
-                return [];
-            }
-            return [];
+        if (!(await verifyAndRefreshToken())) {
+            navigate("/login");
+            return;
         }
-        token = localStorage.getItem("access_token");
+        const token = localStorage.getItem("access_token");
         const groupIdsStr = compareIds.join(',')
         let url = `${BASE_URL}/${API_VERSION}/social-entities/groups/compare/`;
         if (groupIdsStr) {

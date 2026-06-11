@@ -24,14 +24,11 @@ const AdminPage = () => {
         const abortController = new AbortController();
 
         const fetchSummaryInfo = async () => {
-            let token = localStorage.getItem("access_token");
-            if (!token) {
-                if (!(await verifyAndRefreshToken())) {
-                    navigate("/login");
-                    return;
-                }
+            if (!(await verifyAndRefreshToken())) {
+                navigate("/login");
                 return;
             }
+            const token = localStorage.getItem("access_token");
             try {
                 const res = await fetch(`${BASE_URL}/${API_VERSION}/admin/summary/`, {
                     method: 'GET',
@@ -64,14 +61,11 @@ const AdminPage = () => {
     const saveReport = async (reportType) => {
         setIsSaving(true);
         try {
-            let token = localStorage.getItem("access_token");
-            if (!token) {
-                if (!(await verifyAndRefreshToken())) {
-                    navigate("/login");
-                    return;
-                }
+            if (!(await verifyAndRefreshToken())) {
+                navigate("/login");
+                return;
             }
-            token = localStorage.getItem("access_token");
+            const token = localStorage.getItem("access_token");
             const res = await fetch(`${BASE_URL}/${API_VERSION}/reports/admin/`, {
                 method: 'POST',
                 headers: {

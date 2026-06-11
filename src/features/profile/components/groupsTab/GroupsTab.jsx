@@ -13,14 +13,11 @@ const GroupsTab = () => {
 
     const handleDelete = async (groupID) => {
         try {
-            let token = localStorage.getItem("access_token");
-            if (!token) {
-                if (!(await verifyAndRefreshToken())) {
-                    navigate("/login");
-                    return;
-                }
+            if (!(await verifyAndRefreshToken())) {
+                navigate("/login");
                 return;
             }
+            const token = localStorage.getItem("access_token");
             const res = await fetch(`${BASE_URL}/${API_VERSION}/social-entities/groups/${groupID}/`, {
                 method: "DELETE",
                 headers: {
@@ -38,14 +35,11 @@ const GroupsTab = () => {
 
     useEffect(() => {
         const getGroups = async () => {
-            let token = localStorage.getItem("access_token");
-            if (!token) {
-                if (!(await verifyAndRefreshToken())) {
-                    navigate("/login");
-                    return;
-                }
+            if (!(await verifyAndRefreshToken())) {
+                navigate("/login");
                 return;
             }
+            const token = localStorage.getItem("access_token");
             try {
                 return await fetch(`${BASE_URL}/${API_VERSION}/social-entities/groups/?exclude_fields=abs_stats`, {
                     method: "GET",
@@ -60,14 +54,11 @@ const GroupsTab = () => {
         };
 
         const fetchGroupData = async () => {
-            let token = localStorage.getItem("access_token");
-            if (!token) {
-                if (!(await verifyAndRefreshToken())) {
-                    navigate("/login");
-                    return;
-                }
+            if (!(await verifyAndRefreshToken())) {
+                navigate("/login");
                 return;
             }
+            const token = localStorage.getItem("access_token");
 
             try {
                 const response = await getGroups(token);
@@ -78,21 +69,6 @@ const GroupsTab = () => {
                     setGroups(data);
 
                 }
-                // else if (response.status === 400) {
-                //     alert(await response.text());
-                // }
-                // else if (response.status === 401) {
-                //     if (!(await verifyAndRefreshToken())) {
-                //         navigate("/login");
-                //         return;
-                //     }
-                //     token = localStorage.getItem("access_token");
-                //     const retryRes = await getUserData(token);
-                //     setPersonalData(await retryRes.json());
-                // } else {
-                //     console.warn("Не удалось загрузить профиль", response.status);
-                //     // можно показать уведомление, но не обязательно ломать регистрацию
-                // }
             } catch (err) {
                 console.error("Ошибка при загрузке пользовательских данных:", err);
             }

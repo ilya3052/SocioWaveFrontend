@@ -31,14 +31,11 @@ const ServiceAccounts = () => {
     }
 
     const handleDeleteAccount = async (accountId) => {
-        let token = localStorage.getItem("access_token");
-        if (!token) {
-            if (!(await verifyAndRefreshToken())) {
-                navigate("/login");
-                return;
-            }
+        if (!(await verifyAndRefreshToken())) {
+            navigate("/login");
             return;
         }
+        const token = localStorage.getItem("access_token");
         if (!(await deleteServiceAccount(accountId, token))) {
             alert('Произошла ошибка при удалении сервисного аккаунта');
             return;
@@ -47,14 +44,11 @@ const ServiceAccounts = () => {
     }
 
     const handleActivateAccount = async (accountId) => {
-        let token = localStorage.getItem("access_token");
-        if (!token) {
-            if (!(await verifyAndRefreshToken())) {
-                navigate("/login");
-                return;
-            }
+        if (!(await verifyAndRefreshToken())) {
+            navigate("/login");
             return;
         }
+        const token = localStorage.getItem("access_token");
 
         await fetch(`${BASE_URL}/${API_VERSION}/service-accounts/activate/${accountId}`, {
             method: 'GET',
@@ -77,14 +71,11 @@ const ServiceAccounts = () => {
     useEffect(() => {
         const fetchAccounts = async () => {
             try {
-                let token = localStorage.getItem("access_token");
-                if (!token) {
-                    if (!(await verifyAndRefreshToken())) {
-                        navigate("/login");
-                        return;
-                    }
+                if (!(await verifyAndRefreshToken())) {
+                    navigate("/login");
                     return;
                 }
+                const token = localStorage.getItem("access_token");
                 const res = await fetch(`${BASE_URL}/${API_VERSION}/service-accounts/all/`, {
                     method: 'GET',
                     headers: {
@@ -114,7 +105,6 @@ const ServiceAccounts = () => {
                         }
                         return false;
                     }));
-                    console.log(data);
                 }
             } catch (e) {
                 console.log(e);

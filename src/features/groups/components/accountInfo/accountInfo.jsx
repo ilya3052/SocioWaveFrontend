@@ -43,14 +43,11 @@ const AccountInfo = ({
 
     const fetchGroupData = async () => {
         try {
-            let token = localStorage.getItem("access_token");
-            if (!token) {
-                if (!(await verifyAndRefreshToken())) {
-                    navigate("/login");
-                    return;
-                }
+            if (!(await verifyAndRefreshToken())) {
+                navigate("/login");
                 return;
             }
+            const token = localStorage.getItem("access_token");
             let user_id;
             if (platform.alias === 'TG') {
                 user_id = localStorage.getItem("tg_id");

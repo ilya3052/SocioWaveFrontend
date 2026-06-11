@@ -53,6 +53,8 @@ const PersonalTab = () => {
     const [isPasswordLoading, setIsPasswordLoading] = useState(false);
 
     const [isEmailConfirmed, setIsEmailConfirmed] = useState(false);
+    const [emailSent, setEmailSent] = useState(false);
+    const [emailError, setEmailError] = useState(false);
 
     const navigate = useNavigate();
     const {user, refetchUser, loading: userLoading} = useUser();
@@ -96,8 +98,11 @@ const PersonalTab = () => {
 
         const fetchPasswordStatus = async () => {
             try {
+                if (!(await verifyAndRefreshToken())) {
+                    navigate("/login");
+                    return;
+                }
                 const token = localStorage.getItem("access_token");
-                if (!token) return;
 
                 const response = await fetch(`${BASE_URL}/${API_VERSION}/users/me/`, {
                     method: "GET",
@@ -165,11 +170,16 @@ const PersonalTab = () => {
                 break;
 
         }
+        if (!(await verifyAndRefreshToken())) {
+            navigate("/login");
+            return;
+        }
+        const token = localStorage.getItem("access_token");
         return await fetch(url, {
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${localStorage.getItem('access_token')}`,
+                "Authorization": `Bearer ${token}`,
             },
             body: JSON.stringify(dataToEdit),
         });
@@ -258,6 +268,10 @@ const PersonalTab = () => {
 
     const handleTGBind = async () => {
         try {
+            if (!(await verifyAndRefreshToken())) {
+                navigate("/login");
+                return;
+            }
             const access_token = localStorage.getItem("access_token");
             const refresh_token = localStorage.getItem("refresh_token");
             const response = await fetch(`${BASE_URL}/${API_VERSION}/auth/tg/token/short/`, {
@@ -288,13 +302,11 @@ const PersonalTab = () => {
 
     const handleUnbind = async (platform) => {
         try {
-            const token = localStorage.getItem("access_token");
-            if (!token) {
-                if (!(await verifyAndRefreshToken())) {
-                    navigate("/login");
-                    return;
-                }
+            if (!(await verifyAndRefreshToken())) {
+                navigate("/login");
+                return;
             }
+            const token = localStorage.getItem("access_token");
             let data;
             if (platform === 'TG') {
                 data = {
@@ -308,12 +320,11 @@ const PersonalTab = () => {
                     vk_link: null
                 }
             }
-            console.log(data);
-            const res = await fetch(`${BASE_URL}/${API_VERSION}/users/undind-social/?platform=${platform}`, {
+            const res = await fetch(`${BASE_URL}/${API_VERSION}/users/unbind-social/?platform=${platform}`, {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": `Bearer ${localStorage.getItem("access_token")}`,
+                    "Authorization": `Bearer ${token}`,
                 },
                 body: JSON.stringify(data)
             });
@@ -340,25 +351,24 @@ const PersonalTab = () => {
 
     const confirmEmail = async () => {
         try {
-            let token = localStorage.getItem("access_token");
-            if (!token) {
-                if (!(await verifyAndRefreshToken())) {
-                    navigate("/login");
-                    return;
-                }
+            if (!(await verifyAndRefreshToken())) {
+                navigate("/login");
                 return;
             }
+            const token = localStorage.getItem("access_token");
             localStorage.setItem("pending-email", personalData.email);
 
             const res = await fetch(`${BASE_URL}/${API_VERSION}/auth/email/send/`, {
                 method: "GET",
-                headers: {'Authorization': `Bearer ${localStorage.getItem("access_token")}`,}
+                headers: {'Authorization': `Bearer ${token}`,}
             });
             if (res.ok) {
-                console.log(res.json())
+                setEmailSent(true);
+            } else {
+                setEmailError(true);
             }
         } catch (err) {
-            console.log(err);
+            setEmailError(true);
         }
     }
 
@@ -456,13 +466,19 @@ const PersonalTab = () => {
                             <span className={styles.viewValue}>{personalData.email || "—"}</span>
                         )}
                         {!isEditing && personalData.email && !isEmailConfirmed && (
-                            <button
-                                onClick={confirmEmail}
-                                className={styles.confirmEmail}
-                                type="button"
-                            >
-                                Подтвердить почту
-                            </button>
+                            emailSent ? (
+                                <span className={styles.emailSent}>Письмо отправлено</span>
+                            ) : emailError ? (
+                                <span className={styles.emailError}>Ошибка отправки</span>
+                            ) : (
+                                <button
+                                    onClick={confirmEmail}
+                                    className={styles.confirmEmail}
+                                    type="button"
+                                >
+                                    Подтвердить почту
+                                </button>
+                            )
                         )}
                     </div>
                 </form>

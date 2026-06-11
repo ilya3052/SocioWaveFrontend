@@ -44,14 +44,11 @@ const AddGroup = () => {
 
     useEffect(() => {
         const fetchUserData = async () => {
-            let token = localStorage.getItem("access_token");
-            if (!token) {
-                if (!(await verifyAndRefreshToken())) {
-                    navigate("/login");
-                    return;
-                }
+            if (!(await verifyAndRefreshToken())) {
+                navigate("/login");
                 return;
             }
+            const token = localStorage.getItem("access_token");
             try {
                 const getUserSocialDataResponse = await fetch(`${BASE_URL}/${API_VERSION}/users/get-social/`, {
                     method: 'GET',
@@ -76,14 +73,11 @@ const AddGroup = () => {
     useEffect(() => {
         if (!activePlatform) return;
         const fetchServiceAccounts = async () => {
-            let token = localStorage.getItem("access_token");
-            if (!token) {
-                if (!(await verifyAndRefreshToken())) {
-                    navigate("/login");
-                    return;
-                }
+            if (!(await verifyAndRefreshToken())) {
+                navigate("/login");
                 return;
             }
+            const token = localStorage.getItem("access_token");
             try {
                 const getServiceAccountResponse = await fetch(`${BASE_URL}/${API_VERSION}/service-accounts/${activePlatform}`, {
                     method: 'GET',
@@ -133,14 +127,11 @@ const AddGroup = () => {
         const platform = platforms.find(p => p.alias === activePlatform);
 
         try {
-            let token = localStorage.getItem("access_token");
-            if (!token) {
-                if (!(await verifyAndRefreshToken())) {
-                    navigate("/login");
-                    return;
-                }
+            if (!(await verifyAndRefreshToken())) {
+                navigate("/login");
                 return;
             }
+            const token = localStorage.getItem("access_token");
             const res = await fetch(`${BASE_URL}/${API_VERSION}/social-entities/groups/`, {
                 method: 'POST',
                 headers: {

@@ -32,15 +32,11 @@ const DetailInfo = () => {
     const stats = groupData?.abs_stats;
 
     const fetchGroupDetailData = async () => {
-        let token = localStorage.getItem("access_token");
-        if (!token) {
-            if (!(await verifyAndRefreshToken())) {
-                navigate("/login");
-                return;
-            }
+        if (!(await verifyAndRefreshToken())) {
+            navigate("/login");
             return;
         }
-        token = localStorage.getItem("access_token");
+        const token = localStorage.getItem("access_token");
         const res = await fetch(`${BASE_URL}/${API_VERSION}/social-entities/groups/${slug}/?exclude_fields=service_account_id,user,external_id,slug`, {
             method: 'GET',
             headers: {
@@ -55,15 +51,11 @@ const DetailInfo = () => {
     }
 
     const fetchGroupBestPosts = async (group_id) => {
-        let token = localStorage.getItem("access_token");
-        if (!token) {
-            if (!(await verifyAndRefreshToken())) {
-                navigate("/login");
-                return;
-            }
+        if (!(await verifyAndRefreshToken())) {
+            navigate("/login");
             return;
         }
-        token = localStorage.getItem("access_token");
+        const token = localStorage.getItem("access_token");
         const res = await fetch(`${BASE_URL}/${API_VERSION}/stats/${group_id}/best/`, {
             method: 'GET',
             headers: {
@@ -77,15 +69,11 @@ const DetailInfo = () => {
     }
 
     const fetchSnapshotStatsData = async (group_id) => {
-        let token = localStorage.getItem("access_token");
-        if (!token) {
-            if (!(await verifyAndRefreshToken())) {
-                navigate("/login");
-                return;
-            }
+        if (!(await verifyAndRefreshToken())) {
+            navigate("/login");
             return;
         }
-        token = localStorage.getItem("access_token");
+        const token = localStorage.getItem("access_token");
         const res = await fetch(`${BASE_URL}/${API_VERSION}/stats/${group_id}/`, {
             method: 'GET',
             headers: {
@@ -115,14 +103,11 @@ const DetailInfo = () => {
             post_id,
         });
 
-        let token = localStorage.getItem("access_token");
-        if (!token) {
-            if (!(await verifyAndRefreshToken())) {
-                navigate("/login");
-                return;
-            }
+        if (!(await verifyAndRefreshToken())) {
+            navigate("/login");
+            return;
         }
-        token = localStorage.getItem("access_token");
+        const token = localStorage.getItem("access_token");
         const res = await fetch(`${BASE_URL}/${API_VERSION}/social-entities/groups/${groupData.id}/get-post/?post_id=${post_id}`, {
             method: 'GET',
             headers: {
@@ -420,7 +405,6 @@ const DetailInfo = () => {
 
     useEffect(() => {
         const agg = groupData?.aggregated_post_data;
-        console.log(agg)
         if (!agg || groupData?.status !== 'SUCCESS') return;
 
         const datasets = [
@@ -514,12 +498,6 @@ const DetailInfo = () => {
                 const post_id = sourceData[params.dataIndex]?.post_id;
                 const range = sourceData[params.dataIndex]?.range;
                 if (post_id) handleBarClick(post_id, range).catch(console.error);
-                // setHistClickInfo({
-                //     label: ds.label,
-                //     range: params.name,
-                //     count: params.value,
-                //     post_id,
-                // });
             });
         });
 
@@ -605,15 +583,11 @@ const DetailInfo = () => {
     // }, [hourlyData]);
 
     const handleDelete = async () => {
-        let token = localStorage.getItem("access_token");
-        if (!token) {
-            if (!(await verifyAndRefreshToken())) {
-                navigate("/login");
-                return;
-            }
+        if (!(await verifyAndRefreshToken())) {
+            navigate("/login");
             return;
         }
-        token = localStorage.getItem("access_token");
+        const token = localStorage.getItem("access_token");
         const res = await fetch(`${BASE_URL}/${API_VERSION}/social-entities/groups/${groupData.id}/`, {
             method: 'DELETE',
             headers: {
@@ -641,14 +615,11 @@ const DetailInfo = () => {
     const saveReport = async (reportType) => {
         setIsSaving(true);
         try {
-            let token = localStorage.getItem("access_token");
-            if (!token) {
-                if (!(await verifyAndRefreshToken())) {
-                    navigate("/login");
-                    return;
-                }
+            if (!(await verifyAndRefreshToken())) {
+                navigate("/login");
+                return;
             }
-            token = localStorage.getItem("access_token");
+            const token = localStorage.getItem("access_token");
             const res = await fetch(`${BASE_URL}/${API_VERSION}/reports/group/${groupData.id}/?type=${reportType.toUpperCase()}`, {
                 method: 'GET',
                 headers: {

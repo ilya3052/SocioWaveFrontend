@@ -38,15 +38,11 @@ const ReportsPage = () => {
     };
 
     const fetchReports = async (page = 1) => {
-        let token = localStorage.getItem("access_token");
-        if (!token) {
-            if (!(await verifyAndRefreshToken())) {
-                navigate("/login");
-                return;
-            }
+        if (!(await verifyAndRefreshToken())) {
+            navigate("/login");
             return;
         }
-        token = localStorage.getItem("access_token");
+        const token = localStorage.getItem("access_token");
 
         const response = await fetch(`${BASE_URL}/${API_VERSION}/reports/?${buildQuery(page)}`, {
             method: "GET",

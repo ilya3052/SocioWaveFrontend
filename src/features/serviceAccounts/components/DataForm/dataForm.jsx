@@ -19,14 +19,11 @@ const DataForm = ({platform}) => {
 
     const sendAccountData = async () => {
         try {
-            let token = localStorage.getItem("access_token");
-            if (!token) {
-                if (!(await verifyAndRefreshToken())) {
-                    navigate("/login");
-                    return;
-                }
+            if (!(await verifyAndRefreshToken())) {
+                navigate("/login");
                 return;
             }
+            const token = localStorage.getItem("access_token");
             let data;
             if (isTg) {
                 data = {
@@ -44,7 +41,6 @@ const DataForm = ({platform}) => {
                     data: {}
                 };
             }
-            console.log(data);
             const res = await fetch(`${BASE_URL}/${API_VERSION}/service-accounts/`, {
                 method: 'POST',
                 headers: {
