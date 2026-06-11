@@ -57,3 +57,273 @@
         transform: translateY(-50%) rotate(360deg);
     }
 }
+
+/* Обёртка для кнопки + попапа */
+.notifWrapper {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+/* Попап */
+.notifPopup {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    width: 360px;
+    margin-bottom: 12px;
+    overflow: hidden;
+    animation: popupIn 0.2s ease;
+    transform-origin: bottom right;
+}
+
+@keyframes popupIn {
+    from {
+        opacity: 0;
+        transform: translateY(12px) scale(0.96);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.notifPopupHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.notifPopupHeader h3 {
+    margin: 0;
+    font-size: 1rem;
+    color: #333;
+}
+
+.notifPopupClose {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f5f5f5;
+    border: none;
+    border-radius: 50%;
+    font-size: 0.9rem;
+    color: #888;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.notifPopupClose:hover {
+    background: #e9ecef;
+    color: #333;
+}
+
+.notifPopupBody {
+    padding: 0.75rem 1.25rem 1.25rem;
+}
+
+/* Строка настройки */
+.notifRow {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #f5f5f5;
+    gap: 12px;
+}
+
+.notifRow:last-of-type {
+    border-bottom: none;
+}
+
+.notifRowInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    flex: 1;
+}
+
+.notifRowInfo strong {
+    font-size: 0.9rem;
+    color: #333;
+}
+
+.notifRowStatus {
+    font-size: 0.8rem;
+    color: #999;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.notifRowValue {
+    font-size: 0.85rem;
+    color: #555;
+    word-break: break-all;
+}
+
+.notifEmailInput {
+    width: 100%;
+    padding: 6px 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    color: #333;
+    outline: none;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+}
+
+.notifEmailInput:focus {
+    border-color: #2c5aa0;
+}
+
+.notifEmailActions {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.notifRowBtn {
+    flex-shrink: 0;
+    padding: 6px 16px;
+    background: #2c5aa0;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.notifRowBtn:hover {
+    background: #1e3d6f;
+}
+
+.notifRowBtnAlt {
+    flex-shrink: 0;
+    padding: 6px 16px;
+    background: transparent;
+    color: #2c5aa0;
+    border: 1px solid #2c5aa0;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.notifRowBtnAlt:hover {
+    background: #f0f4ff;
+}
+
+.notifRowBtnGreen {
+    flex-shrink: 0;
+    padding: 6px 16px;
+    background: #28a745;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.notifRowBtnGreen:hover {
+    background: #218838;
+}
+
+.notifRowBtnDanger {
+    flex-shrink: 0;
+    padding: 6px 16px;
+    background: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.notifRowBtnDanger:hover {
+    background: #c82333;
+}
+
+.notifTgLink {
+    color: #2c5aa0;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.notifTgLink:hover {
+    text-decoration: underline;
+}
+
+/* Тестовое уведомление */
+.notifTestBtn {
+    display: block;
+    width: 100%;
+    margin-top: 0.75rem;
+    padding: 10px;
+    background: #ffc107;
+    color: #212529;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.notifTestBtn:hover {
+    background: #e0a800;
+}
+
+/* Плавающая кнопка */
+.notifFab {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 20px;
+    background: #2c5aa0;
+    color: white;
+    border: none;
+    border-radius: 50px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(44, 90, 160, 0.35);
+    transition: all 0.3s ease;
+}
+
+.notifFab:hover {
+    background: #1e3d6f;
+    box-shadow: 0 6px 24px rgba(44, 90, 160, 0.45);
+    transform: translateY(-2px);
+}
+
+.notifFabActive {
+    background: #dc3545;
+    box-shadow: 0 4px 16px rgba(220, 53, 69, 0.35);
+}
+
+.notifFabActive:hover {
+    background: #c82333;
+    box-shadow: 0 6px 24px rgba(220, 53, 69, 0.45);
+}
+
+.notifFabLabel {
+    white-space: nowrap;
+}

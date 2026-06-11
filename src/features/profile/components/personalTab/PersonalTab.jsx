@@ -1,6 +1,13 @@
 import styles from './personal.module.css';
 import {useEffect, useState} from "react";
-import {API_VERSION, BASE_URL, logout, sendForDebug, verifyAndRefreshToken} from "../../../../utils/utils.js";
+import {
+    API_VERSION,
+    BASE_URL,
+    confirmEmail, handleTGBind,
+    logout,
+    sendForDebug,
+    verifyAndRefreshToken
+} from "../../../../utils/utils.js";
 import {useNavigate} from "react-router-dom";
 import {createVKAuthBindingHandler, initializeVKID} from "../../../../utils/OneTapVKAuth.jsx";
 import {useUser} from "../../../../context/UserContext.jsx";
@@ -269,39 +276,6 @@ const PersonalTab = () => {
         setIsEditing(false);
     };
 
-    const handleTGBind = async () => {
-        try {
-            if (!(await verifyAndRefreshToken())) {
-                navigate("/login");
-                return;
-            }
-            const access_token = localStorage.getItem("access_token");
-            const refresh_token = localStorage.getItem("refresh_token");
-            const response = await fetch(`${BASE_URL}/${API_VERSION}/auth/tg/token/short/`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${access_token}`,
-                },
-                body: JSON.stringify({
-                    "access_token": access_token,
-                    "refresh_token": refresh_token,
-                })
-            });
-            if (response.status === 201) {
-                const short_token = (await response.json()).short_token;
-                localStorage.setItem("short_tg_token", short_token);
-                window.open(`https://t.me/socialpulsesandboxbot?start=${short_token}`, "_blank");
-            } else if (response.status === 400) {
-                const err = await response.text();
-                toast.error(err);
-                await sendForDebug(err);
-            }
-        } catch (err) {
-            toast.error('Ошибка при привязке Telegram');
-            await sendForDebug(err);
-        }
-    }
 
     const handleUnbind = async (platform) => {
         try {
@@ -352,28 +326,7 @@ const PersonalTab = () => {
         }
     }
 
-    const confirmEmail = async () => {
-        try {
-            if (!(await verifyAndRefreshToken())) {
-                navigate("/login");
-                return;
-            }
-            const token = localStorage.getItem("access_token");
-            localStorage.setItem("pending_email", personalData.email);
 
-            const res = await fetch(`${BASE_URL}/${API_VERSION}/auth/email/send/`, {
-                method: "GET",
-                headers: {'Authorization': `Bearer ${token}`,}
-            });
-            if (res.ok) {
-                setEmailSent(true);
-            } else {
-                setEmailError(true);
-            }
-        } catch (err) {
-            setEmailError(true);
-        }
-    }
 
     return (
         <div className={styles.tabContent}>
@@ -491,7 +444,10 @@ const PersonalTab = () => {
                         <strong>TG:</strong>
                         <span>{personalData.tg_link || "Не привязано"}</span>
                         {!personalData.tg_link ? (
-                            <button onClick={handleTGBind} className={styles.linkPlatform}>Привязать</button>
+                            <button onClick={() => {
+                                handleTGBind({navigate, toast})
+                            }
+                            } className={styles.linkPlatform}>Привязать</button>
                         ) : (
                             <button onClick={() => handleUnbind('TG')} className={styles.unlinkPlatform}>Отвязать</button>
                         )}
