@@ -140,4 +140,64 @@ const logout = async (navigate) => {
     navigate('/login');
 }
 
-export {sendForDebug, BASE_URL, API_VERSION, verifyAndRefreshToken, logout};
+const confirmEmail = async ({navigate, setEmailSent, setEmailError, notifEmail = null}) => {
+    try {
+        if (!(await verifyAndRefreshToken())) {
+            navigate("/login");
+            return;
+        }
+        const token = localStorage.getItem("access_token");
+        let email_param = '';
+        if (notifEmail) {
+            email_param = `?email=${notifEmail}`;
+        }
+        const res = await fetch(`${BASE_URL}/${API_VERSION}/auth/email/send/${email_param}`, {
+            method: "GET",
+            headers: {'Authorization': `Bearer ${token}`,}
+        });
+        if (res.ok) {
+            setEmailSent(true);
+        } else {
+            setEmailError(true);
+        }
+    } catch (err) {
+        setEmailError(true);
+    }
+}
+
+const handleTGBind = async ({navigate, toast}) => {
+    try {
+        if (!(await verifyAndRefreshToken())) {
+            navigate("/login");
+            return;
+        }
+        const access_token = localStorage.getItem("access_token");
+        const refresh_token = localStorage.getItem("refresh_token");
+        const response = await fetch(`${BASE_URL}/${API_VERSION}/auth/tg/token/short/`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${access_token}`,
+            },
+            body: JSON.stringify({
+                "access_token": access_token,
+                "refresh_token": refresh_token,
+            })
+        });
+        if (response.status === 201) {
+            const short_token = (await response.json()).short_token;
+            localStorage.setItem("short_tg_token", short_token);
+            window.open(`https://t.me/socialpulsesandboxbot?start=${short_token}`, "_blank");
+        } else if (response.status === 400) {
+            const err = await response.text();
+            toast.error(err);
+            await sendForDebug(err);
+        }
+    } catch (err) {
+        toast.error('Ошибка при привязке Telegram');
+        await sendForDebug(err);
+    }
+}
+
+
+export {sendForDebug, BASE_URL, API_VERSION, verifyAndRefreshToken, logout, confirmEmail, handleTGBind};
