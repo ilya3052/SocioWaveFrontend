@@ -18,7 +18,7 @@ const HeaderAdmin = () => {
         <header className={styles.header}>
             <div className={styles.headerContent}>
                 <Link to="/" className={styles.logo}>
-                    SocialPulse
+                    SocioWave
                 </Link>
 
                 <nav className={styles.navCenter}>

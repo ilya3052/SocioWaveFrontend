@@ -10,7 +10,7 @@ const OutlierAlert = ({postData}) => {
     }
 
     if (Array.isArray(postData)) {
-        if (postData.length === 0) {
+        if (postData.length !== 0) {
             return (
                 <section className={styles.outlierAlertOk}>
                     <div className={styles.outlierAlertOkBody}>
