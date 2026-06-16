@@ -23,6 +23,14 @@ const SummaryInfo = () => {
     const compareIds = useCompareStore(state => state.compareIds);
     const toggleCompareId = useCompareStore(state => state.toggleCompareId);
 
+    const handleToggleCompare = (id) => {
+        if (!compareIds.includes(id) && compareIds.length >= 12) {
+            toast.error('Максимум 12 групп для сравнения');
+            return;
+        }
+        toggleCompareId(id);
+    };
+
     const [currentState, setCurrentState] = useState({
         "platform": platform,
         "minParticipants": minParticipants,
@@ -36,7 +44,7 @@ const SummaryInfo = () => {
             return;
         }
         const token = localStorage.getItem("access_token");
-        let url = `${BASE_URL}/${API_VERSION}/social-entities/groups/?exclude_fields=users_ids,users,platform_id,service_account_id`;
+        let url = `${BASE_URL}/${API_VERSION}/social-entities/groups/all/?exclude_fields=users_ids,users,platform_id,service_account_id`;
         if (filters) {
             url = url.concat('&').concat(filters.toString())
         }
@@ -155,7 +163,7 @@ const SummaryInfo = () => {
                             detailsLink={group.slug}
                             stats={group.abs_stats}
                             isSelected={compareIds.includes(group.id)}
-                            onToggleCompare={toggleCompareId}
+                            onToggleCompare={handleToggleCompare}
                         />
                     })}
                 </div>

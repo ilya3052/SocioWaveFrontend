@@ -16,7 +16,7 @@ const ReportCard = ({filename, platform, date, format, link}) => {
             <div className={styles.reportInfo}>
                 <div className={styles.reportTitle}>{filename}</div>
                 <div className={styles.reportMeta}>
-                    <span className={`${styles.platformBadge} ${styles[`platform-${platform?.toLowerCase()}`]}`}>
+                    <span className={`${styles.platformBadge} ${platform === '-' ? styles.platformNone : styles[`platform-${platform?.toLowerCase()}`]}`}>
                         {platform}
                     </span>
                     <span className={styles.typeBadge}>{format}</span>

@@ -22,7 +22,7 @@ const GroupsTab = () => {
         }
         const token = localStorage.getItem("access_token");
         try {
-            const response = await fetch(`${BASE_URL}/${API_VERSION}/social-entities/groups/?exclude_fields=abs_stats`, {
+            const response = await fetch(`${BASE_URL}/${API_VERSION}/social-entities/groups/all?exclude_fields=abs_stats`, {
                 method: "GET",
                 headers: {
                     "Authorization": `Bearer ${token}`,

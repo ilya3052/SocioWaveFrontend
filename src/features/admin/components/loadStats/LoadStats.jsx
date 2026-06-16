@@ -6,8 +6,8 @@ const LoadStats = ({stats, groupStats}) => {
     const account_with_maximum_usage = stats.max;
     const total_groups_count = groupStats.vk_count + groupStats.tg_count;
 
-    const min_usage_acc_loading_percentage = total_groups_count === 0 ? 0 : (account_with_minimum_usage.count / total_groups_count) * 100;
-    const max_usage_acc_loading_percentage = total_groups_count === 0 ? 0 : (account_with_maximum_usage.count / total_groups_count) * 100;
+    const min_usage_acc_loading_percentage = (total_groups_count === 0 ? 0 : (account_with_minimum_usage.count / total_groups_count) * 100).toFixed(2);
+    const max_usage_acc_loading_percentage = (total_groups_count === 0 ? 0 : (account_with_maximum_usage.count / total_groups_count) * 100).toFixed(2);
 
     const getStyleByPercentage = (percentage) => {
         if (percentage < 33) {

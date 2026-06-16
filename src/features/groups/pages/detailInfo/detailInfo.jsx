@@ -1,6 +1,7 @@
 import React, {useEffect, useRef, useState} from 'react';
 import styles from './detailInfo.module.css';
 import TopPosts from "../../components/topPosts/topPosts.jsx";
+import OutlierAlert from "../../components/outlierAlert/OutlierAlert.jsx";
 import {useNavigate, useParams} from "react-router-dom";
 import {API_VERSION, BASE_URL, sendForDebug, verifyAndRefreshToken} from "../../../../utils/utils.js";
 import * as echarts from 'echarts';
@@ -11,17 +12,15 @@ const DetailInfo = () => {
     const [groupData, setGroupData] = useState(null);
     const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
 
+    const [postData, setPostData] = useState(null);
     const [bestPostData, setBestPostData] = useState(null);
 
     const [dailyData, setDailyData] = useState(null);
-    const [hourlyData, setHourlyData] = useState(null);
 
     const [showDeleteModal, setShowDeleteModal] = useState(false);
 
     const subscribersDivRef = useRef(null);
     const subscribersChartRef = useRef(null);
-    // const activityDivRef = useRef(null);
-    // const activityChartRef = useRef(null);
     const deltaDivRef = useRef(null);
     const deltaChartRef = useRef(null);
     const histContainerRefs = [useRef(null), useRef(null), useRef(null)];
@@ -125,135 +124,41 @@ const DetailInfo = () => {
         }
     }
 
+    const fetchPosts = async (group_id) => {
+        if (!(await verifyAndRefreshToken())) {
+            navigate("/login");
+            return;
+        }
+        const token = localStorage.getItem("access_token");
+        const res = await fetch(`${BASE_URL}/${API_VERSION}/social-entities/predictive-models/${group_id}/`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+        });
+        if (res.ok) {
+            return await res.json();
+        }
+        return await res.json();
+    }
+
     useEffect(() => {
         fetchGroupDetailData().then(
             async res => {
-                // console.log(res)
                 setGroupData(res);
                 if (res.status === 'SUCCESS') {
-                    const [bestPosts, snapshotStats] = await Promise.all([
+                    const [postData, bestPosts, snapshotStats] = await Promise.all([
+                        fetchPosts(res.id),
                         fetchGroupBestPosts(res.id),
                         fetchSnapshotStatsData(res.id)
                     ]);
+                    setPostData(postData);
                     setBestPostData(bestPosts);
-                    const daily = [];
-                    const hourly = [];
-                    for (let i = 0; i < snapshotStats.length; i++) {
-                        if (snapshotStats[i].type === 'DAILY') {
-                            daily.push(snapshotStats[i]);
-                        } else {
-                            hourly.push(snapshotStats[i]);
-                        }
-                    }
-                    setDailyData(
-                        [{'stats': {'participants_delta': 9}, 'timestamp': '2026-02-23T13:29:25.631'},
-                            {'stats': {'participants_delta': 1}, 'timestamp': '2026-02-24T13:29:25.631'},
-                            {'stats': {'participants_delta': 5}, 'timestamp': '2026-02-25T13:29:25.631'},
-                            {'stats': {'participants_delta': 7}, 'timestamp': '2026-02-26T13:29:25.631'},
-                            {'stats': {'participants_delta': 9}, 'timestamp': '2026-02-27T13:29:25.631'},
-                            {'stats': {'participants_delta': 13}, 'timestamp': '2026-02-28T13:29:25.631'},
-                            {'stats': {'participants_delta': -1}, 'timestamp': '2026-03-01T13:29:25.631'},
-                            {'stats': {'participants_delta': 6}, 'timestamp': '2026-03-02T13:29:25.631'},
-                            {'stats': {'participants_delta': 8}, 'timestamp': '2026-03-03T13:29:25.631'},
-                            {'stats': {'participants_delta': 11}, 'timestamp': '2026-03-04T13:29:25.631'},
-                            {'stats': {'participants_delta': 3}, 'timestamp': '2026-03-05T13:29:25.631'},
-                            {'stats': {'participants_delta': 0}, 'timestamp': '2026-03-06T13:29:25.631'},
-                            {'stats': {'participants_delta': 15}, 'timestamp': '2026-03-07T13:29:25.631'},
-                            {'stats': {'participants_delta': 12}, 'timestamp': '2026-03-08T13:29:25.631'},
-                            {'stats': {'participants_delta': 5}, 'timestamp': '2026-03-09T13:29:25.631'},
-                            {'stats': {'participants_delta': 13}, 'timestamp': '2026-03-10T13:29:25.631'},
-                            {'stats': {'participants_delta': 11}, 'timestamp': '2026-03-11T13:29:25.631'},
-                            {'stats': {'participants_delta': 1}, 'timestamp': '2026-03-12T13:29:25.631'},
-                            {'stats': {'participants_delta': 15}, 'timestamp': '2026-03-13T13:29:25.631'},
-                            {'stats': {'participants_delta': 11}, 'timestamp': '2026-03-14T13:29:25.631'},
-                            {'stats': {'participants_delta': 14}, 'timestamp': '2026-03-15T13:29:25.631'},
-                            {'stats': {'participants_delta': 13}, 'timestamp': '2026-03-16T13:29:25.631'},
-                            {'stats': {'participants_delta': 8}, 'timestamp': '2026-03-17T13:29:25.631'},
-                            {'stats': {'participants_delta': 12}, 'timestamp': '2026-03-18T13:29:25.631'},
-                            {'stats': {'participants_delta': 10}, 'timestamp': '2026-03-19T13:29:25.631'},
-                            {'stats': {'participants_delta': 2}, 'timestamp': '2026-03-20T13:29:25.631'},
-                            {'stats': {'participants_delta': 5}, 'timestamp': '2026-03-21T13:29:25.631'},
-                            {'stats': {'participants_delta': 6}, 'timestamp': '2026-03-22T13:29:25.631'},
-                            {'stats': {'participants_delta': 15}, 'timestamp': '2026-03-23T13:29:25.631'},
-                            {'stats': {'participants_delta': 2}, 'timestamp': '2026-03-24T13:29:25.631'},
-                            {'stats': {'participants_delta': 13}, 'timestamp': '2026-03-25T13:29:25.631'},
-                            {'stats': {'participants_delta': 9}, 'timestamp': '2026-03-26T13:29:25.631'},
-                            {'stats': {'participants_delta': 4}, 'timestamp': '2026-03-27T13:29:25.631'},
-                            {'stats': {'participants_delta': 1}, 'timestamp': '2026-03-28T13:29:25.631'},
-                            {'stats': {'participants_delta': 8}, 'timestamp': '2026-03-29T13:29:25.631'},
-                            {'stats': {'participants_delta': 3}, 'timestamp': '2026-03-30T13:29:25.631'},
-                            {'stats': {'participants_delta': 9}, 'timestamp': '2026-03-31T13:29:25.631'},
-                            {'stats': {'participants_delta': 10}, 'timestamp': '2026-04-01T13:29:25.631'},
-                            {'stats': {'participants_delta': 15}, 'timestamp': '2026-04-02T13:29:25.631'},
-                            {'stats': {'participants_delta': 4}, 'timestamp': '2026-04-03T13:29:25.631'},
-                            {'stats': {'participants_delta': 0}, 'timestamp': '2026-04-04T13:29:25.631'},
-                            {'stats': {'participants_delta': 6}, 'timestamp': '2026-04-05T13:29:25.631'},
-                            {'stats': {'participants_delta': 7}, 'timestamp': '2026-04-06T13:29:25.631'},
-                            {'stats': {'participants_delta': 7}, 'timestamp': '2026-04-07T13:29:25.631'},
-                            {'stats': {'participants_delta': 2}, 'timestamp': '2026-04-08T13:29:25.631'},
-                            {'stats': {'participants_delta': 10}, 'timestamp': '2026-04-09T13:29:25.631'},
-                            {'stats': {'participants_delta': 12}, 'timestamp': '2026-04-10T13:29:25.631'},
-                            {'stats': {'participants_delta': 13}, 'timestamp': '2026-04-11T13:29:25.631'},
-                            {'stats': {'participants_delta': 4}, 'timestamp': '2026-04-12T13:29:25.631'},
-                            {'stats': {'participants_delta': 9}, 'timestamp': '2026-04-13T13:29:25.631'},
-                            {'stats': {'participants_delta': 7}, 'timestamp': '2026-04-14T13:29:25.631'},
-                            {'stats': {'participants_delta': 0}, 'timestamp': '2026-04-15T13:29:25.631'},
-                            {'stats': {'participants_delta': -1}, 'timestamp': '2026-04-16T13:29:25.631'},
-                            {'stats': {'participants_delta': -1}, 'timestamp': '2026-04-17T13:29:25.631'},
-                            {'stats': {'participants_delta': 11}, 'timestamp': '2026-04-18T13:29:25.631'},
-                            {'stats': {'participants_delta': 1}, 'timestamp': '2026-04-19T13:29:25.631'},
-                            {'stats': {'participants_delta': 1}, 'timestamp': '2026-04-20T13:29:25.631'},
-                            {'stats': {'participants_delta': -1}, 'timestamp': '2026-04-21T13:29:25.631'},
-                            {'stats': {'participants_delta': 12}, 'timestamp': '2026-04-22T13:29:25.631'},
-                            {'stats': {'participants_delta': 10}, 'timestamp': '2026-04-23T13:29:25.631'},
-                            {'stats': {'participants_delta': 10}, 'timestamp': '2026-04-24T13:29:25.631'},
-                            {'stats': {'participants_delta': 1}, 'timestamp': '2026-04-25T13:29:25.631'},
-                            {'stats': {'participants_delta': 13}, 'timestamp': '2026-04-26T13:29:25.631'},
-                            {'stats': {'participants_delta': 7}, 'timestamp': '2026-04-27T13:29:25.631'},
-                            {'stats': {'participants_delta': 6}, 'timestamp': '2026-04-28T13:29:25.631'},
-                            {'stats': {'participants_delta': 4}, 'timestamp': '2026-04-29T13:29:25.631'},
-                            {'stats': {'participants_delta': 10}, 'timestamp': '2026-04-30T13:29:25.631'},
-                            {'stats': {'participants_delta': 3}, 'timestamp': '2026-05-01T13:29:25.631'},
-                            {'stats': {'participants_delta': 12}, 'timestamp': '2026-05-02T13:29:25.631'},
-                            {'stats': {'participants_delta': 14}, 'timestamp': '2026-05-03T13:29:25.631'},
-                            {'stats': {'participants_delta': 9}, 'timestamp': '2026-05-04T13:29:25.631'},
-                            {'stats': {'participants_delta': 6}, 'timestamp': '2026-05-05T13:29:25.631'},
-                            {'stats': {'participants_delta': 14}, 'timestamp': '2026-05-06T13:29:25.631'},
-                            {'stats': {'participants_delta': 6}, 'timestamp': '2026-05-07T13:29:25.631'},
-                            {'stats': {'participants_delta': 13}, 'timestamp': '2026-05-08T13:29:25.631'},
-                            {'stats': {'participants_delta': 11}, 'timestamp': '2026-05-09T13:29:25.631'},
-                            {'stats': {'participants_delta': 2}, 'timestamp': '2026-05-10T13:29:25.631'},
-                            {'stats': {'participants_delta': 6}, 'timestamp': '2026-05-11T13:29:25.631'},
-                            {'stats': {'participants_delta': 5}, 'timestamp': '2026-05-12T13:29:25.631'},
-                            {'stats': {'participants_delta': -1}, 'timestamp': '2026-05-13T13:29:25.631'},
-                            {'stats': {'participants_delta': 5}, 'timestamp': '2026-05-14T13:29:25.631'},
-                            {'stats': {'participants_delta': 8}, 'timestamp': '2026-05-15T13:29:25.631'},
-                            {'stats': {'participants_delta': 5}, 'timestamp': '2026-05-16T13:29:25.631'},
-                            {'stats': {'participants_delta': 6}, 'timestamp': '2026-05-17T13:29:25.631'},
-                            {'stats': {'participants_delta': 3}, 'timestamp': '2026-05-18T13:29:25.631'},
-                            {'stats': {'participants_delta': 2}, 'timestamp': '2026-05-19T13:29:25.631'},
-                            {'stats': {'participants_delta': 12}, 'timestamp': '2026-05-20T13:29:25.631'},
-                            {'stats': {'participants_delta': 12}, 'timestamp': '2026-05-21T13:29:25.631'},
-                            {'stats': {'participants_delta': 15}, 'timestamp': '2026-05-22T13:29:25.631'},
-                            {'stats': {'participants_delta': 5}, 'timestamp': '2026-05-23T13:29:25.631'},
-                            {'stats': {'participants_delta': 0}, 'timestamp': '2026-05-24T13:29:25.631'},
-                            {'stats': {'participants_delta': 15}, 'timestamp': '2026-05-25T13:29:25.631'},
-                            {'stats': {'participants_delta': 11}, 'timestamp': '2026-05-26T13:29:25.631'},
-                            {'stats': {'participants_delta': 15}, 'timestamp': '2026-05-27T13:29:25.631'},
-                            {'stats': {'participants_delta': 3}, 'timestamp': '2026-05-28T13:29:25.631'},
-                            {'stats': {'participants_delta': 10}, 'timestamp': '2026-05-29T13:29:25.631'},
-                            {'stats': {'participants_delta': 8}, 'timestamp': '2026-05-30T13:29:25.631'},
-                            {'stats': {'participants_delta': 7}, 'timestamp': '2026-05-31T13:29:25.631'},
-                            {'stats': {'participants_delta': 7}, 'timestamp': '2026-06-01T13:29:25.631'},
-                            {'stats': {'participants_delta': 5}, 'timestamp': '2026-06-02T13:29:25.631'}]
-                    );
-
-                    setDailyData(daily);
-                    setHourlyData(hourly);
+                    setDailyData(snapshotStats);
                 }
             }
         ).catch(async e => {
-            console.error(e);
             await sendForDebug(e);
         });
 
@@ -512,81 +417,6 @@ const DetailInfo = () => {
         };
     }, [groupData, histScales]);
 
-    // активность по часам - убрать
-    // useEffect(() => {
-    //     if (!hourlyData || !hourlyData.length || !activityDivRef.current) return;
-    //
-    //     const labels = hourlyData.map(item => {
-    //         const date = new Date(item.timestamp);
-    //         return date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
-    //     });
-    //
-    //     const likesData = hourlyData.map(item => item.stats[0]?.likes_count || 0);
-    //     const viewsData = hourlyData.map(item => item.stats[0]?.views_count || 0);
-    //
-    //     if (activityChartRef.current) activityChartRef.current.dispose();
-    //     const visiblePoints = 30;
-    //     const totalPoints = labels.length;
-    //
-    //     activityChartRef.current = echarts.init(activityDivRef.current);
-    //     activityChartRef.current.setOption({
-    //         tooltip: { trigger: 'axis' },
-    //         legend: { data: ['Лайки', 'Просмотры'], top: 0 },
-    //         grid: { left: 60, right: 20, top: 35, bottom: 40 },
-    //         xAxis: {
-    //             type: 'category',
-    //             data: labels,
-    //             name: 'Время',
-    //             nameLocation: 'center',
-    //             nameGap: 30,
-    //             nameTextStyle: { fontSize: 12, fontWeight: 500, color: '#666' },
-    //             axisLine: { lineStyle: { color: '#ddd' } },
-    //             axisLabel: { fontSize: 11 },
-    //         },
-    //         yAxis: {
-    //             type: 'value',
-    //             min: 0,
-    //             name: 'Количество',
-    //             nameLocation: 'center',
-    //             nameGap: 45,
-    //             nameTextStyle: { fontSize: 12, fontWeight: 500, color: '#666' },
-    //             splitLine: { lineStyle: { color: '#e9ecef' } },
-    //         },
-    //         series: [
-    //             {
-    //                 name: 'Лайки',
-    //                 type: 'line',
-    //                 data: likesData,
-    //                 smooth: true,
-    //                 symbol: 'circle',
-    //                 symbolSize: 3,
-    //                 lineStyle: { color: '#e74c3c', width: 2 },
-    //                 areaStyle: { color: 'rgba(231, 76, 60, 0.1)' },
-    //                 itemStyle: { color: '#e74c3c' },
-    //             },
-    //             {
-    //                 name: 'Просмотры',
-    //                 type: 'line',
-    //                 data: viewsData,
-    //                 smooth: true,
-    //                 symbol: 'circle',
-    //                 symbolSize: 3,
-    //                 lineStyle: { color: '#3498db', width: 2 },
-    //                 areaStyle: { color: 'rgba(52, 152, 219, 0.1)' },
-    //                 itemStyle: { color: '#3498db' },
-    //             },
-    //         ],
-    //         dataZoom: [
-    //             { type: 'inside', xAxisIndex: 0, zoomOnMouseWheel: true, moveOnMouseMove: true, startValue: Math.max(0, totalPoints - visiblePoints),
-    //                 endValue: totalPoints - 1, },
-    //             { type: 'slider', xAxisIndex: 0, bottom: 8, height: 12, startValue: Math.max(0, totalPoints - visiblePoints),
-    //                 endValue: totalPoints - 1, borderColor: '#ddd', fillerColor: 'rgba(52, 152, 219, 0.15)', handleStyle: { borderColor: '#3498db' } },
-    //         ],
-    //     });
-    //
-    //     return () => { if (activityChartRef.current) activityChartRef.current.dispose(); };
-    // }, [hourlyData]);
-
     const handleDelete = async () => {
         if (!(await verifyAndRefreshToken())) {
             navigate("/login");
@@ -739,14 +569,7 @@ const DetailInfo = () => {
             )}
 
             {groupData.status === 'SUCCESS' && (
-                <section className={styles.outlierAlertOk}>
-                    <div className={styles.outlierAlertOkBody}>
-                        <div className={styles.outlierAlertOkTitle}>Выделяющихся постов нет</div>
-                        <div className={styles.outlierAlertOkText}>
-                            Все посты в рамках нормы — сильных отклонений не обнаружено.
-                        </div>
-                    </div>
-                </section>
+                <OutlierAlert postData={postData}/>
             )}
 
             {groupData?.aggregated_post_data && (
@@ -940,7 +763,6 @@ const DetailInfo = () => {
                 </div>
             )}
 
-            {/* Кнопка сохранить */}
             <div className={styles.saveBtnContainer}>
                 <button
                     className={`${styles.saveBtn} ${isSaving ? styles.saving : ''}`}

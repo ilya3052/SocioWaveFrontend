@@ -48,6 +48,10 @@
     background: #4c75a3;
 }
 
+.platformNone {
+    background: #6c757d;
+}
+
 .typeBadge {
     background: #6c757d;
 }

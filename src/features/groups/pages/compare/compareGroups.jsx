@@ -4,6 +4,7 @@ import useCompareStore from "../../../../store/compareStore.js";
 import {useNavigate} from "react-router-dom";
 import {API_VERSION, BASE_URL, verifyAndRefreshToken} from "../../../../utils/utils.js";
 import toast from "react-hot-toast";
+import Loader from "../../../../components/loader/Loader.jsx";
 
 
 const CompareGroups = () => {
@@ -11,8 +12,9 @@ const CompareGroups = () => {
     const navigate = useNavigate();
 
     const [groupsData, setGroupsData] = useState([]);
-
+    const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [isSaving, setIsSaving] = useState(false);
 
     const handleGroupsDataForCompare = async () => {
         if (!(await verifyAndRefreshToken())) {
@@ -47,15 +49,65 @@ const CompareGroups = () => {
             }
         ).catch(
             () => toast.error('Ошибка при загрузке данных для сравнения')
-        )
+        ).finally(() => setLoading(false))
     }, [navigate, compareIds]);
 
+    const saveReport = async (reportType) => {
+        setIsSaving(true);
+        try {
+            if (!(await verifyAndRefreshToken())) {
+                navigate("/login");
+                return;
+            }
+            const token = localStorage.getItem("access_token");
+            const groupIdsStr = compareIds.join(',')
+            let url = `${BASE_URL}/${API_VERSION}/reports/compare/`;
+            if (groupIdsStr) {
+                url = url.concat(`?groups_ids=${groupIdsStr}`);
+            }
+            url = url.concat(`&type=${reportType.toUpperCase()}`);
+            const res = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+            });
+            if (res.ok) {
+                const data = await res.json();
+                window.open(`${window.location.origin}/${data}`, '_blank');
+            }
+        } finally {
+            setIsSaving(false);
+        }
+    }
+
+    if (loading) {
+        return <Loader text="Загрузка данных для сравнения..." fullPage/>;
+    }
+
     if (error) {
-        return <div className={styles.container}>{error}</div>
+        return (
+            <div className={styles.container}>
+                <div className={styles.emptyState}>
+                    <div className={styles.emptyStateTitle}>Ошибка загрузки</div>
+                    <div className={styles.emptyStateText}>{error}</div>
+                </div>
+            </div>
+        );
     }
 
     if (!groupsData || groupsData.length === 0) {
-        return <div className={styles.container}>Нет данных для сравнения</div>
+        return (
+            <div className={styles.container}>
+                <div className={styles.emptyState}>
+                    <div className={styles.emptyStateTitle}>Нет данных для сравнения</div>
+                    <div className={styles.emptyStateText}>
+                        Добавьте группы в список сравнения на главной странице, затем вернитесь сюда.
+                    </div>
+                </div>
+            </div>
+        );
     }
 
     const formatNumber = (num) => {
@@ -142,24 +194,25 @@ const CompareGroups = () => {
                                 </td>
                             ))}
                         </tr>
-                        <tr>
-                            <td className={styles.featureCell}>Графики</td>
-                            {groupsData.map(group => (
-                                <td key={group.id} className={styles.chartPlaceholder}>доступно в файловой версии отчета</td>
-                            ))}
-                        </tr>
                     </tbody>
                 </table>
             </div>
 
             <div className={styles.saveBtnContainer}>
-            <div className={styles.actions}>
-                <button className={styles.btnExport}>Сохранить в PDF</button>
-            </div>
-            <div className={styles.actions}>
-                <button className={styles.btnExport}>Сохранить в Excel</button>
-            </div>
-            </div>
+                <button
+                    className={`${styles.btnExport} ${isSaving ? styles.saving : ''}`}
+                    onClick={async () => await saveReport('xlsx')}
+                    disabled={isSaving}
+                >
+                    {isSaving ? 'Загрузка...' : 'Сохранить в Excel'}
+                </button>
+                <button
+                    className={`${styles.btnExport} ${isSaving ? styles.saving : ''}`}
+                    onClick={async () => await saveReport('pdf')}
+                    disabled={isSaving}
+                >
+                    {isSaving ? 'Загрузка...' : 'Сохранить в PDF'}
+                </button></div>
         </div>
     );
 };

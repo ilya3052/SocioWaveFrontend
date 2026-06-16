@@ -5,9 +5,10 @@
     flex: 1;
 }
 
-/* Кнопка сохранения */
 .saveBtnContainer {
-    text-align: center;
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
     margin-top: 2rem;
 }
 
