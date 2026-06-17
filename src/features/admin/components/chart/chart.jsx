@@ -2,16 +2,13 @@ import {Pie} from 'react-chartjs-2';
 import {ArcElement, Chart as ChartJS, Legend, Tooltip} from 'chart.js';
 import styles from './chart.module.css';
 
-// Регистрируем необходимые компоненты Chart.js
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 const PlatformChart = ({groupStats}) => {
-    // 1. Нормализуем входные данные (важно!)
     const vkCount = Number(groupStats?.vk_count) || 0;
     const tgCount = Number(groupStats?.tg_count) || 0;
     const total = vkCount + tgCount;
 
-    // 2. Проценты (ТОЛЬКО для отображения)
     const getPercentage = (value) => {
         if (total === 0) return 0;
         return (value / total) * 100;
@@ -20,7 +17,6 @@ const PlatformChart = ({groupStats}) => {
     const vkPercent = getPercentage(vkCount);
     const tgPercent = getPercentage(tgCount);
 
-    // 3. Данные графика — ТОЛЬКО абсолютные значения
     const chartData = {
         labels: ['VK', 'Telegram'],
         datasets: [
@@ -40,7 +36,6 @@ const PlatformChart = ({groupStats}) => {
         ],
     };
 
-    // 4. Опции
     const chartOptions = {
         responsive: true,
         maintainAspectRatio: false,

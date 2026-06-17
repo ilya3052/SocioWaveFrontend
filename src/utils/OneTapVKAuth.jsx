@@ -1,9 +1,6 @@
 import * as VKID from '@vkid/sdk';
-import {API_VERSION, BASE_URL, sendForDebug} from './utils.js';
+import {API_VERSION, BASE_URL, REDIRECT_URL, APP_ID, sendForDebug} from './utils.js';
 
-/**
- * Обмен code и deviceId на VK токены
- */
 
 export const exchangeCode = async (code, deviceId) => {
     const tokens = await VKID.Auth.exchangeCode(code, deviceId);
@@ -13,9 +10,7 @@ export const exchangeCode = async (code, deviceId) => {
     return tokens;
 };
 
-/**
- * Отправка обменённых токенов на бэкенд
- */
+
 export const sendExchangedCodes = async (tokens) => {
     const res = await fetch(`${BASE_URL}/${API_VERSION}/auth/vk/callback/`, {
         method: 'POST',
@@ -53,13 +48,11 @@ export const sendBindingCallback = async () => {
     }
 }
 
-/**
- * Инициализация VKID OneTap и настройка обработчика успешной авторизации
- */
+
 export const initializeVKID = (onSuccess, type) => {
     VKID.Config.init({
-        app: 54438538,
-        redirectUrl: 'https://socialpulse.sandbox.com',
+        app: APP_ID,
+        redirectUrl: REDIRECT_URL,
         source: VKID.ConfigSource.LOWCODE,
         responseMode: 'callback',
         scope: 'email phone',
@@ -101,9 +94,7 @@ export const initializeVKID = (onSuccess, type) => {
     };
 };
 
-/**
- * Обработчик успешной авторизации через VK (используется как callback для initializeVKID)
- */
+
 export const createVKAuthSuccessHandler = (navigate, refetchUser) => {
     return async (payload) => {
         const code = payload.code;

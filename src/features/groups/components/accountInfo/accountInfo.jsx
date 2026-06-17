@@ -6,9 +6,9 @@ import toast from "react-hot-toast";
 import Loader from "../../../../components/loader/Loader.jsx";
 
 const AccountInfo = ({
-                         platform,           // объект платформы { id, name, alias }
-                         activePlatform,     // текущая активная платформа (строка, например 'tg')
-                         userSocialData,      // объект с данными пользователя { tg_link, vk_link, ... }
+                         platform,
+                         activePlatform,
+                         userSocialData,
                          loading,
                          serviceAccount,
                          setGroupData
@@ -36,7 +36,7 @@ const AccountInfo = ({
 
     const isConnected = !!userLink;
 
-    // Динамический плейсхолдер
+
     const placeholder = platform.alias === 'TG'
         ? 'Введите ссылку на канал Telegram...'
         : platform.alias === 'VK'
@@ -129,7 +129,7 @@ const AccountInfo = ({
                     type="text"
                     placeholder={placeholder}
                     className={styles.linkInput}
-                    value={groupLink}                    // ← важно!
+                    value={groupLink}
                     onChange={(e) => setGroupLink(e.target.value)}
                 />
                 {serviceAccount ? <button onClick={fetchGroupData} className={styles.requestDataBtn}>

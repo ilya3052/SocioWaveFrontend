@@ -46,16 +46,14 @@ const PersonalTab = () => {
 
     const [editData, setEditData] = useState(DATA_TO_EDIT);
 
-    // Режим редактирования
     const [isEditing, setIsEditing] = useState(false);
 
-    // Синхронизируем editData при изменении исходных данных (на случай перезагрузки)
     useEffect(() => {
         setEditData(personalData);
     }, [personalData]);
 
     const [passwordData, setPasswordData] = useState(INITIAL_PASSWORD_FORM_STATE);
-    const [newPasswordError, setNewPasswordError] = useState(false);     // для отображения ошибок
+    const [newPasswordError, setNewPasswordError] = useState(false);
     const [newPasswordErrorData, setNewPasswordErrorData] = useState([])
 
     const [isPasswordLoading, setIsPasswordLoading] = useState(false);
@@ -152,7 +150,7 @@ const PersonalTab = () => {
             ...prev,
             [name]: value,
         }));
-        setNewPasswordErrorData([]); // сбрасываем ошибку при вводе
+        setNewPasswordErrorData([]);
     };
 
     const sendEditedData = async (type) => {
@@ -272,7 +270,7 @@ const PersonalTab = () => {
     }
 
     const handleCancel = () => {
-        setEditData(personalData); // откатываем изменения
+        setEditData(personalData);
         setIsEditing(false);
     };
 
@@ -478,7 +476,7 @@ const PersonalTab = () => {
                                 value={passwordData.old_password}
                                 onChange={handlePasswordChangeInput}
                                 autoComplete="current-password"
-                                required={hasPassword} // Делаем поле обязательным только когда оно есть
+                                required={hasPassword}
                             />
                         </div>
                     )}

@@ -1,4 +1,3 @@
-// AddAccountPage.jsx
 import React, {useEffect, useState} from 'react';
 import styles from './addAccount.module.css';
 import PlatformSelector from "../../../../components/platformSelector/platformSelector.jsx";

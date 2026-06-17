@@ -1,9 +1,8 @@
-/* Основной контент таба */
+
 .tabContent {
     padding: 2rem;
 }
 
-/* Блоки профиля */
 .profileBlock {
     margin-bottom: 2rem;
 }
@@ -15,7 +14,6 @@
     border-bottom: 2px solid #f8f9fa;
 }
 
-/* Заголовок блока с кнопками */
 .blockHeader {
     display: flex;
     justify-content: space-between;

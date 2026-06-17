@@ -1,4 +1,3 @@
-// DataForm.jsx
 import React, {useState} from 'react';
 import styles from './dataForm.module.css';
 import {API_VERSION, BASE_URL, verifyAndRefreshToken} from "../../../../utils/utils.js";

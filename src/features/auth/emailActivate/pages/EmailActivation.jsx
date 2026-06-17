@@ -46,7 +46,6 @@ export default function EmailActivation() {
             setMessage(data.message || "Почта успешно подтверждена!");
             setStatus("success");
 
-            // Можно очистить временное хранилище
             localStorage.removeItem("pending_email");
         } catch (err) {
             setMessage(err.message || "Не удалось подтвердить почту");

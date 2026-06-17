@@ -3,18 +3,15 @@ import styles from './AccountsSection.module.css';
 import AccountCard from '../AccountCard/AccountCard';
 import Pagination from '../Pagination/Pagination';
 
-// Константа для количества элементов на странице
 const ITEMS_PER_PAGE = 3;
 
 const AccountsSection = ({title, count, accounts, onDeleteAccount, onActivateAccount, sectionType}) => {
     const [currentPage, setCurrentPage] = useState(1);
 
-    // Вычисляем индексы для текущей страницы
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
     const endIndex = startIndex + ITEMS_PER_PAGE;
     const paginatedAccounts = accounts.slice(startIndex, endIndex);
 
-    // Вычисляем общее количество страниц
     const totalPages = Math.ceil(accounts.length / ITEMS_PER_PAGE);
 
     const handlePageChange = (newPage) => {

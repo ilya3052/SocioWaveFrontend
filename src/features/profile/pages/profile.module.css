@@ -1,4 +1,3 @@
-/* ProfileSection.module.css — Основные стили профиля */
 
 .profileSection {
     max-width: 1000px;
@@ -7,7 +6,6 @@
     min-height: calc(100vh - 200px);
 }
 
-/* Табы */
 .tabs {
     display: flex;
     background: white;
@@ -38,7 +36,7 @@
     background: #e9ecef;
 }
 
-/* Обёртка контента табов */
+
 .tabContentWrapper {
     background: white;
     border-radius: 0 0 10px 10px;

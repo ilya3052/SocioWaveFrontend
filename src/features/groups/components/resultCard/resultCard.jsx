@@ -1,7 +1,7 @@
-// components/ResultCard.jsx
 import React from 'react';
 import styles from './ResultCard.module.css';
 import {Link} from "react-router-dom";
+import {REDIRECT_URL} from "../../../../utils/utils.js";
 
 const ResultCard = ({
                         id,
@@ -50,7 +50,7 @@ const ResultCard = ({
                 <span className={styles.statsUpdated}>обновлено {time}</span>
             </div>
             <div className={styles.cardActions}>
-                <Link to={`https://socialpulse.sandbox.com/groups/${detailsLink}`}
+                <Link to={`${REDIRECT_URL}/groups/${detailsLink}`}
                    className={styles.detailsLink}>Подробнее</Link>
             </div>
         </div>
