@@ -8,14 +8,13 @@ export default defineConfig({
         host: '127.0.0.1',
         port: 5500,
         strictPort: true,
-        allowedHosts: ['socialpulse.sandbox.com'],  // or true for testing
+        allowedHosts: ['sociowave.com'],
 
         hmr: {
-            protocol: 'wss',              // Force secure WS
-            host: 'socialpulse.sandbox.com',
-            clientPort: 443,              // Client connects to external 443
-            timeout: 30000,               // Increase timeout if needed
-            // path: '/vite-hmr',         // Optional: only if you customize WS path
+            protocol: 'wss',
+            host: 'sociowave.com',
+            clientPort: 443,
+            timeout: 30000,
         },
     },
 })
